@@ -1,0 +1,40 @@
+#ALWAYS RUN COMMANDS UNDER SUDO!!!
+cd [dir]
+npm install socket.io
+npm install express #not used
+sudo npm install -g nodemon #auto-reruns node when code changes
+#NODEMON::: http://remysharp.com/2010/10/12/nodejs-rapid-development-nodemon/
+
+http://casual-effects.blogspot.com/2012/08/getting-started-with-socketio.html
+
+https://github.com/LearnBoost/socket.io
+
+https://npmjs.org/package/socket.io
+
+cd node_sites/sockTest
+sudo node app.js
+sudo nodemon app.js
+#sudo node node_sites/sockTest/app.js
+
+KINETICJS.COM
+
+#READ AND WRITE TO FILE:
+var fs = require('fs');# already there
+
+fs.readFile(__dirname + '/index.html',
+function (err, data) {
+if (err) {
+	res.writeHead(500);
+	return res.end('Error loading index.html');
+}
+
+res.writeHead(200);
+res.end(data);
+});
+fs.writeFile("/tmp/test", "Hey there!", function(err) {
+    if(err) {
+        console.log(err);
+    } else {
+        console.log("The file was saved!");
+    }
+}); 

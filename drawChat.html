@@ -1,0 +1,153 @@
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js"></script>
+<script src="/socket.io/socket.io.js"></script>
+<script>
+$(function() {
+    var c = document.getElementById("canvas");
+    //c.width=window.innerWidth*.55;
+    //c.height=window.innerHeight*.6;
+    c.width=720;
+    c.height=540;
+    var ctx = c.getContext("2d");
+    var socket = io.connect('/chatHandler');
+    /*socket.on('news', function(data) {
+        console.log(data);
+        socket.emit('my other event', {
+            my: 'data'
+        });
+        //socket.send("Hey, venky!");
+    });*/
+    socket.on('eraseAll',function(data) {
+        c.width=c.width;
+    });
+    $("#clrBtn").click(function() {
+        socket.emit('eraseAll','foo');
+    });
+    socket.on('message', function(data) {
+        $("#Result").append("<br>" + data).scrollTop($("#Result")[0].scrollHeight);
+    });
+    socket.on('image', function(data) {
+        /*console.log(data);
+        ctx.beginPath();
+        ctx.arc(data.x, data.y, 1, 0, 2 * Math.PI, true);
+        ctx.closePath();
+        ctx.fill();*/
+
+        ctx.beginPath();
+        ctx.moveTo(data.px,data.py);
+        ctx.lineTo(data.x, data.y);
+        ctx.closePath();
+        ctx.stroke();
+        //console.log(data);
+    });
+    $("#form").submit(function(e) {
+        e.preventDefault();
+        socket.send($("#msg").val());
+        $("#msg").val("");
+    });
+    //$("body").mousemove(function(e) {console.log(e.pageX+","+e.pageY);});
+    var mouseX=null;
+    var mousePX=null;
+    var mouseY=null;
+    var mousePY=null;
+    $("#canvas").mousedown(function(e) {
+        if (!(mousePX)) {
+            mousePX = e.pageX - this.offsetLeft;
+            mousePY = e.pageY - this.offsetTop;
+            mouseX=mousePX;
+            mouseY=mousePY;
+        }
+        else {
+            mousePX=mouseX;
+            mousePY=mouseY;
+            mouseX = e.pageX - this.offsetLeft;
+            mouseY = e.pageY - this.offsetTop;
+        }
+        socket.emit("image",{
+            x:mouseX,
+            y:mouseY,
+            px:mousePX,
+            py:mousePY
+        });
+        //console.log("PX:"+mousePX+","+mousePY+"X:"+mouseX+","+mouseY);
+        /*ctx.beginPath();
+        ctx.arc(mouseX, mouseY, 1, 0, 2 * Math.PI, true);
+        ctx.closePath();
+        ctx.fill();*/
+        
+    });
+    $("#canvas").mousemove(function(e) {
+        if (!(mousePX)) return;
+        mousePX=mouseX;
+        mousePY=mouseY;
+        mouseX = e.pageX - this.offsetLeft;
+        mouseY = e.pageY - this.offsetTop;
+        socket.emit("image",{
+            x:mouseX,
+            y:mouseY,
+            px:mousePX,
+            py:mousePY
+        });
+        //console.log("PX:"+mousePX+","+mousePY+"X:"+mouseX+","+mouseY);
+        /*ctx.beginPath();
+        ctx.arc(mouseX, mouseY, 1, 0, 2 * Math.PI, true);
+        ctx.closePath();
+        ctx.fill();*/
+        
+    });
+    $(document).mouseup(function(e) {
+        mouseX=null;
+        mousePX=null;
+    });
+    $("#canvas").mouseout(function(e) {
+        //mouseX=null;
+        //mousePX=null;
+    });
+    $("#canvas").mouseover(function(e) {
+    });
+
+});
+</script>
+<style>
+#Result {
+	border:1px solid black;
+	overflow:auto;
+    height:100%;
+    width:100%;
+}
+#canvasDiv
+{
+    float:right;
+}
+#chat {
+    float:left;
+    width:30%;
+    height:50%;
+}
+#canvas {
+    /*cursor:default;
+	position:absolute;
+	right:2%;
+    top:1%;*/
+	border:1px solid black;
+}
+#4controls {
+    position:absolute;
+    right:2%;
+    top:65%;
+}
+</style>
+<h1>CHAT/DRAW</h1>
+<div id="chat">
+    <div id="Result">
+    </div>
+    <form id="form">
+    	<input type="text" id="msg">
+    	<input type="submit">
+    </form>
+</div>
+<div id="canvasDiv">
+    <canvas id="canvas"></canvas>
+    <div id="controls">
+        <button id="clrBtn">Clear</button>
+    </div>
+</div>
