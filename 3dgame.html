@@ -3,10 +3,11 @@
 <script src="three.min.js"></script>
 <script>
 $(function() {
-    var speed=.4;
+    var speed=.6;
     var xvel=0;
     var yvel=0;
     var zvel=0;
+    var velC=.9;
     $(document).keydown(function(e) {
         var code = (e.keyCode ? e.keyCode : e.which);
         if (code===37) {
@@ -43,6 +44,7 @@ $(function() {
 
     function init() {
         //z:forward(-)/backward(+), x:left/right, y:up/down
+        //CubeGeometry(width, height, depth, widthSegments, heightSegments, depthSegments)
         camera = new THREE.PerspectiveCamera( 75, width / height, .1, 1000 );
         camera.position.z = 20;
 
@@ -59,7 +61,7 @@ $(function() {
         cube.position.z=0;
         scene.add( cube );
 
-        for (var i=-10;i<=10;i++)
+        /*for (var i=-10;i<=10;i++)
         {
             for (var j=-10;j<=10;j++)
             {
@@ -77,8 +79,43 @@ $(function() {
                     scene.add( cube_ );
                 }
             }
+        }*/
+        var geometry_,material_,cube_;
+        //floor:
+        geometry_ = new THREE.CubeGeometry( 100, 1, 100 );
+        material_ = new THREE.MeshBasicMaterial( { color: 0x964B00, wireframe:false} );
+
+        cube_ = new THREE.Mesh( geometry_, material_ );
+        cube_.position.x=0;
+        cube_.position.y=-10;
+        cube_.position.z=0;
+        scene.add( cube_ );
+
+        //walls:
+        geometry_ = new THREE.CubeGeometry( 1, 50, 100 );
+        material_ = new THREE.MeshBasicMaterial( { color: 0x007700, wireframe:false} );
+
+        cube_ = new THREE.Mesh( geometry_, material_ );
+        cube_.position.x=-50;
+        cube_.position.y=15;
+        cube_.position.z=0;
+        scene.add( cube_ );
+
+        //randomness:
+        geometry_ = new THREE.CubeGeometry( .4, .4, .4 );
+        material_ = new THREE.MeshBasicMaterial( { color: 0x770000, wireframe:false} );
+
+        for (var i=-100;i<=100;i++) {
+            for (var j=-100;j<=100;j++) {
+                if (Math.random()<.01) {
+                    cube_ = new THREE.Mesh( geometry_, material_ );
+                    cube_.position.x=i;
+                    cube_.position.y=Math.floor(Math.random()*11);
+                    cube_.position.z=j;
+                    scene.add( cube_ );
+                }
+            }
         }
-        //camera.lookAt(0,0,0);
 
         renderer = new THREE.WebGLRenderer();
         //THREE.WebGLRenderer() THREE.CanvasRenderer()
@@ -89,7 +126,6 @@ $(function() {
         document.body.appendChild( renderer.domElement );
 
     }
-
     function render() {
 
         // requestAnimationFrame stops when going to a diff. tab
@@ -101,9 +137,9 @@ $(function() {
         camera.position.x+=xvel;
         camera.position.y+=yvel;
         camera.position.z+=zvel;
-        xvel*=.94;
-        yvel*=.94;
-        zvel*=.94;
+        xvel*=velC;
+        yvel*=velC;
+        zvel*=velC;
         renderer.render( scene, camera );
 
     }
