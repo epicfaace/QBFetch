@@ -10,19 +10,29 @@ var lastUpdate=  currentdate.getFullYear() + " @ "
                 + currentdate.getSeconds();
 function handler (req, res) {
 	var url=req.url;
-	var routes=["/","/chat","/pong"];
-	var fileNames=["./index.html","./drawChat.html","./pong.html"]
-	if (routes.indexOf(url) === -1) return req.url;
-	url=fileNames[routes.indexOf(url)];
-	fs.readFile(url,"utf8", function (err, data) { //utf8 soporta tildes - o ¿no?
-		res.charset="utf8";
+	var html=false;
+	var routes=["/","/chat","/pong","/3dgame"];
+	var fileNames=["./index.html","./drawChat.html","./pong.html","./3dgame.html"];
+	if (routes.indexOf(url) != -1) { //found in array of fileNames
+		url=fileNames[routes.indexOf(url)];
+		html=true;
+	}
+	else {
+		url="."+url;
+	}
+	fs.readFile(url,/*"utf8",*/ function (err, data) { //utf8 soporta tildes - o ¿no?
+		//res.charset="utf8";
 		if (err) {
 			res.writeHead(500);
 			//console.log(err);
-			return res.end('<p>'+lastUpdate+'</p>'+String(err));
+			var final = String(err);
+			if (html) final='<p>'+lastUpdate+'</p>'+final;
+			return res.end(final);
 		}
 		res.writeHead(200);
-		res.end('<p>'+lastUpdate+'</p>'+data);
+		var final = data;
+		if (html) final='<p>'+lastUpdate+'</p>'+final;
+		res.end(data);
 	});
 }
 

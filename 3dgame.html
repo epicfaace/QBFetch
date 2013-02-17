@@ -1,0 +1,68 @@
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js"></script>
+<script src="/socket.io/socket.io.js"></script>
+<script src="three.min.js"></script>
+<script>
+$(function() {
+    $(document).keydown(function(e) {
+        var code = (e.keyCode ? e.keyCode : e.which);
+        if (code===37&&xpos>=0) {
+            console.log("left!");
+            //xpos-=speed;
+            xvel-=speed;
+        }
+        else if (code===39&&xpos<=c.width-150) {
+            console.log("right!");
+            //xpos+=speed;
+            xvel+=speed;
+        }
+        else {
+            return;
+        }
+        /*socket.emit('movement', {
+            xpos:xpos
+        });*/
+    });
+    var camera, scene, renderer;
+    var geometry, material, mesh;
+
+    init();
+    animate();
+
+    function init() {
+
+        camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 1, 10000 );
+        camera.position.z = 1000;
+
+        scene = new THREE.Scene();
+
+        geometry = new THREE.CubeGeometry( 200, 200, 200 );
+        material = new THREE.MeshBasicMaterial( { color: 0x000000, wireframe: true } );
+
+        mesh = new THREE.Mesh( geometry, material );
+        scene.add( mesh );
+
+        renderer = new THREE.CanvasRenderer();
+        //THREE.WebGLRenderer() THREE.CanvasRenderer()
+        renderer.setSize( window.innerWidth, window.innerHeight );
+        //renderer.setSize(720,540);
+        renderer.setClearColorHex( 0xfffeef, 1 );
+
+        document.body.appendChild( renderer.domElement );
+
+    }
+
+    function animate() {
+
+        // note: three.js includes requestAnimationFrame shim
+        requestAnimationFrame( animate );
+
+        mesh.rotation.x += 0.01;
+        mesh.rotation.y += 0.01;
+        mesh.rotation.z += 0.01;
+
+        renderer.render( scene, camera );
+
+    }
+
+});
+</script>

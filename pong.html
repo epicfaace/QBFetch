@@ -10,6 +10,7 @@ $(function() {
     var ctx = c.getContext("2d");
     var socket = io.connect('/pongHandler');
     var xpos=360;
+    var pxpos=360; //so a small change won't be sent to servers
     var xvel=0;
     var speed=3;
     ctx.fillStyle='rgba(255,20,20,.7)';
@@ -57,18 +58,22 @@ $(function() {
     });
     $("#canvas").mouseover(function(e) {
     });
-    setInterval(velLogic,1);
-    function velLogic() {
+    setInterval(velLogic,5);
+    function velLogic() { //so a small change won't be sent to servers
         if (xpos<=5) xvel=1.2;
-        else if (xpos>=c.width-150-5) xvel=-1.2;
+        else if (xpos>=c.width-150-5) xvel= -1.2;
         xpos+=xvel;
         xvel*=.93;
         ctx.clearRect(0,c.height-60,c.width,50);
         ctx.fillStyle='rgba(20,20,255,.7)';
         ctx.fillRect(xpos,c.height-60,150,50);
-        socket.emit('movement', {
-            xpos:xpos
-        });
+        if (Math.round(pxpos*100)!=Math.round(xpos*100))
+        { 
+            socket.emit('movement', {
+                xpos:xpos
+            });
+        }
+        pxpos=xpos;
     }
 
 });
