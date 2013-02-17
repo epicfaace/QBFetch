@@ -3,17 +3,28 @@
 <script src="three.min.js"></script>
 <script>
 $(function() {
+    var speed=.4;
+    var xvel=0;
+    var yvel=0;
+    var zvel=0;
     $(document).keydown(function(e) {
         var code = (e.keyCode ? e.keyCode : e.which);
-        if (code===37&&xpos>=0) {
+        if (code===37) {
             console.log("left!");
             //xpos-=speed;
             xvel-=speed;
+
         }
-        else if (code===39&&xpos<=c.width-150) {
+        else if (code===39) {
             console.log("right!");
             //xpos+=speed;
             xvel+=speed;
+        }
+        else if (code===38) { //up
+            zvel-=speed;
+        }
+        else if (code===40) { //down
+            zvel+=speed;
         }
         else {
             return;
@@ -23,27 +34,55 @@ $(function() {
         });*/
     });
     var camera, scene, renderer;
-    var geometry, material, mesh;
+    var geometry, material, cube;
+    var width=window.innerWidth;
+    var height=window.innerHeight;
 
     init();
-    animate();
+    render();
 
     function init() {
-
-        camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 1, 10000 );
-        camera.position.z = 1000;
+        //z:forward(-)/backward(+), x:left/right, y:up/down
+        camera = new THREE.PerspectiveCamera( 75, width / height, .1, 1000 );
+        camera.position.z = 20;
 
         scene = new THREE.Scene();
 
-        geometry = new THREE.CubeGeometry( 200, 200, 200 );
-        material = new THREE.MeshBasicMaterial( { color: 0x000000, wireframe: true } );
+        geometry = new THREE.CubeGeometry( 1, 1, 1 );
+        //material = new THREE.MeshBasicMaterial( { color: 0xff0000} );
+        texture = THREE.ImageUtils.loadTexture('sonic_sonicRunning.gif');
+        material = new THREE.MeshBasicMaterial({map: texture});
 
-        mesh = new THREE.Mesh( geometry, material );
-        scene.add( mesh );
+        cube = new THREE.Mesh( geometry, material );
+        cube.position.x=2;
+        cube.position.y=0;
+        cube.position.z=0;
+        scene.add( cube );
+
+        for (var i=-10;i<=10;i++)
+        {
+            for (var j=-10;j<=10;j++)
+            {
+                for (var k=-1; k<=1; k++)
+                {
+                    var geometry_ = new THREE.CubeGeometry( 1, 1, 1 );
+                    var material_ = new THREE.MeshBasicMaterial( { color: 0x0000ff, wireframe:true} );
+                    //var texture_ = THREE.ImageUtils.loadTexture('sonic_sonicRunning.gif');
+                    //var material_ = new THREE.MeshBasicMaterial({map: texture_});
+
+                    var cube_ = new THREE.Mesh( geometry_, material_ );
+                    cube_.position.x=i;
+                    cube_.position.y=j;
+                    cube_.position.z=k;
+                    scene.add( cube_ );
+                }
+            }
+        }
+        //camera.lookAt(0,0,0);
 
         renderer = new THREE.WebGLRenderer();
         //THREE.WebGLRenderer() THREE.CanvasRenderer()
-        renderer.setSize( window.innerWidth, window.innerHeight );
+        renderer.setSize( width, height );
         //renderer.setSize(720,540);
         renderer.setClearColorHex( 0xfffeef, 1 );
 
@@ -51,15 +90,20 @@ $(function() {
 
     }
 
-    function animate() {
+    function render() {
 
-        // note: three.js includes requestAnimationFrame shim
-        requestAnimationFrame( animate );
+        // requestAnimationFrame stops when going to a diff. tab
+        requestAnimationFrame( render );
 
-        mesh.rotation.x += 0.01;
-        mesh.rotation.y += 0.01;
-        mesh.rotation.z += 0.01;
-
+        cube.rotation.x += 0.01;
+        cube.rotation.y += 0.01;
+        cube.rotation.z += 0.01;
+        camera.position.x+=xvel;
+        camera.position.y+=yvel;
+        camera.position.z+=zvel;
+        xvel*=.94;
+        yvel*=.94;
+        zvel*=.94;
         renderer.render( scene, camera );
 
     }
