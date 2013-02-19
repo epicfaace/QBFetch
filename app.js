@@ -74,7 +74,23 @@ var pongHandler=io.of('/pongHandler')
 		socket.send(data);
 	});
 	socket.on('movement',function(data) {
-		socket.broadcast.emit('movement',data); //change to broadcast
+		socket.broadcast.emit('movement',data); //change(d) to broadcast
+	});
+  //socket.on('')
+});
+var threedgameHandler=io.of('/3dgameHandler')
+.on('connection', function (socket) {
+/*	socket.emit goes to custom handler, socket.send goes to 'message' handler
+	socket.emit (or send) goes to only the user who sent the message;
+		chatHandler (or var name) .emit/send goes to all users
+*/
+	//socket.send('welcome!');
+
+	socket.on('message',function(data) {
+		socket.send(data);
+	});
+	socket.on('playerPos',function(data) {
+		socket.broadcast.emit('playerPos',{x:data.x,y:data.y,z:data.z}); //change(d) to broadcast
 	});
   //socket.on('')
 });

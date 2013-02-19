@@ -8,16 +8,19 @@ $(function() {
     var yvel=0;
     var zvel=0;
     var velC=.9;
+    //var prevPos;
+    var socket = io.connect('/3dgameHandler');
+    var world=[];
     $(document).keydown(function(e) {
         var code = (e.keyCode ? e.keyCode : e.which);
-        if (code===37) {
-            console.log("left!");
+        if (code===37) {//left
+            //console.log("left!");
             //xpos-=speed;
             xvel-=speed;
 
         }
-        else if (code===39) {
-            console.log("right!");
+        else if (code===39) {//right
+            //console.log("right!");
             //xpos+=speed;
             xvel+=speed;
         }
@@ -38,7 +41,7 @@ $(function() {
     var geometry, material, cube;
     var width=window.innerWidth;
     var height=window.innerHeight;
-
+var geometry_,material_,cube_;
     init();
     render();
 
@@ -47,10 +50,11 @@ $(function() {
         //CubeGeometry(width, height, depth, widthSegments, heightSegments, depthSegments)
         camera = new THREE.PerspectiveCamera( 75, width / height, .1, 1000 );
         camera.position.z = 20;
+        prevPos=camera.position;
 
         scene = new THREE.Scene();
 
-        geometry = new THREE.CubeGeometry( 1, 1, 1 );
+        geometry = new THREE.CubeGeometry( 10, 10, 10 );
         //material = new THREE.MeshBasicMaterial( { color: 0xff0000} );
         texture = THREE.ImageUtils.loadTexture('sonic_sonicRunning.gif');
         material = new THREE.MeshBasicMaterial({map: texture});
@@ -80,7 +84,6 @@ $(function() {
                 }
             }
         }*/
-        var geometry_,material_,cube_;
         //floor:
         geometry_ = new THREE.CubeGeometry( 100, 1, 100 );
         material_ = new THREE.MeshBasicMaterial( { color: 0x964B00, wireframe:false} );
@@ -89,7 +92,7 @@ $(function() {
         cube_.position.x=0;
         cube_.position.y=-10;
         cube_.position.z=0;
-        scene.add( cube_ );
+        //scene.add( cube_ );
 
         //walls:
         geometry_ = new THREE.CubeGeometry( 1, 50, 100 );
@@ -101,21 +104,44 @@ $(function() {
         cube_.position.z=0;
         scene.add( cube_ );
 
-        //randomness:
-        geometry_ = new THREE.CubeGeometry( .4, .4, .4 );
-        material_ = new THREE.MeshBasicMaterial( { color: 0x770000, wireframe:false} );
 
-        for (var i=-100;i<=100;i++) {
-            for (var j=-100;j<=100;j++) {
-                if (Math.random()<.01) {
-                    cube_ = new THREE.Mesh( geometry_, material_ );
-                    cube_.position.x=i;
-                    cube_.position.y=Math.floor(Math.random()*11);
-                    cube_.position.z=j;
-                    scene.add( cube_ );
-                }
+        //renders grass on the ground
+        geometry_ = new THREE.Geometry();
+        //material = new THREE.MeshBasicMaterial( { color: 0xff0000} );
+        texture_both = THREE.ImageUtils.loadTexture('textures/grass_dirt.png');
+        texture_grass= THREE.ImageUtils.loadTexture('textures/grass.png');
+        texture_dirt= THREE.ImageUtils.loadTexture('textures/dirt.png');
+        
+        material_ = new THREE.MeshFaceMaterial([
+            new THREE.MeshBasicMaterial({ //bottom or back
+            map: texture_grass
+        }), new THREE.MeshBasicMaterial({ //left
+            map: texture_dirt
+        }), new THREE.MeshBasicMaterial({ //top
+            map: texture_grass
+        }), new THREE.MeshBasicMaterial({
+            map: texture_both
+        }), new THREE.MeshBasicMaterial({
+            map: texture_both
+        }), new THREE.MeshBasicMaterial({
+            map: texture_both
+        })]);
+
+        //material_ = new THREE.MeshBasicMaterial({map: texture_grass});
+        
+        for (var i=-50;i<=50;i++) {
+            for (var j=-50;j<=50;j++) {        
+                cube_ = new THREE.Mesh( new THREE.CubeGeometry( 1, 1, 1 ), material_ );
+                cube_.position.x=i;
+                cube_.position.y=-10;
+                cube_.position.z=j;
+                //scene.add( cube_ );
+                THREE.GeometryUtils.merge(geometry_,cube_);
             }
         }
+        mesh_ = new THREE.Mesh( geometry_, material_ );
+        scene.add(mesh_);
+
 
         renderer = new THREE.WebGLRenderer();
         //THREE.WebGLRenderer() THREE.CanvasRenderer()
@@ -140,10 +166,30 @@ $(function() {
         xvel*=velC;
         yvel*=velC;
         zvel*=velC;
+
         renderer.render( scene, camera );
 
-    }
+        if ((Math.round(prevPos.x*100)!=Math.round(camera.position.x*100)) ||
+            (Math.round(prevPos.y*100)!=Math.round(camera.position.y*100)) ||
+            (Math.round(prevPos.z*100)!=Math.round(camera.position.z*100))
+            ) {
+            socket.emit('playerPos',{
+                x:camera.position.x,
+                y:camera.position.y,
+                z:camera.position.z
+                });
+        }
+        //prevPos=camera.position;
 
+    }
+    socket.on('playerPos',function(data) {
+        cube.position.x=data.x;
+        cube.position.y=data.y;
+        cube.position.z=data.z;
+    });
+    function genChunk() {
+
+    }
 });
 </script>
 <style>
