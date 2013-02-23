@@ -98,15 +98,10 @@ $(function() {
 				cube_.position.z=0;
 				scene.add( cube_ );
 
-
-				//renders grass on the ground
-				geometry_ = new THREE.Geometry();
-				//material = new THREE.MeshBasicMaterial( { color: 0xff0000} );
 				texture_both = THREE.ImageUtils.loadTexture('textures/grass_dirt.png');
 				texture_grass= THREE.ImageUtils.loadTexture('textures/grass.png');
 				texture_dirt= THREE.ImageUtils.loadTexture('textures/dirt.png');
-				
-				material_ = new THREE.MeshFaceMaterial([
+				material_blk = new THREE.MeshFaceMaterial([
 						new THREE.MeshBasicMaterial({ //bottom or back
 						map: texture_grass
 				}), new THREE.MeshBasicMaterial({ //left
@@ -120,21 +115,7 @@ $(function() {
 				}), new THREE.MeshBasicMaterial({
 						map: texture_both
 				})]);
-
-				//material_ = new THREE.MeshBasicMaterial({map: texture_grass});
-				
-				/*for (var i=-50;i<=50;i++) {
-						for (var j=-50;j<=50;j++) {        
-								cube_ = new THREE.Mesh( new THREE.CubeGeometry( 1, 1, 1 ), material_ );
-								cube_.position.x=i;
-								cube_.position.y=-10;
-								cube_.position.z=j;
-								//scene.add( cube_ );
-								THREE.GeometryUtils.merge(geometry_,cube_);
-						}
-				}
-				mesh_ = new THREE.Mesh( geometry_, material_ );
-				scene.add(mesh_);*/
+				scene.add(genChunk(material_blk,camera.position.x,camera.position.y,camera.position.z,10,1));
 
 				renderer = new THREE.WebGLRenderer();
 				//THREE.WebGLRenderer() THREE.CanvasRenderer()
@@ -143,11 +124,10 @@ $(function() {
 				renderer.setClearColorHex( 0xfffeef, 1 );
 
 				document.body.appendChild( renderer.domElement );
-				genChunk();
 
 		}
 		function render() {
-
+				//console.log(material_blk);
 				// requestAnimationFrame stops when going to a diff. tab
 				requestAnimationFrame( render );
 				//genChunk();
@@ -157,21 +137,21 @@ $(function() {
 				camera.position.x+=xvel;
 				camera.position.y+=yvel;
 				camera.position.z+=zvel;
-				xvel*=velC;
-				yvel*=velC;
-				zvel*=velC;
+				xvel=0;yvel=0;zvel=0;
+				//xvel*=velC;
+				//yvel*=velC;
+				//zvel*=velC;
 
-				renderer.render( scene, camera );
-
-				if ((Math.round(prevPos.x*100)!=Math.round(camera.position.x*100)) ||
-						(Math.round(prevPos.y*100)!=Math.round(camera.position.y*100)) ||
-						(Math.round(prevPos.z*100)!=Math.round(camera.position.z*100))
+				if ((Math.round(prevPos.x*10)!=Math.round(camera.position.x*10)) ||
+						(Math.round(prevPos.y*10)!=Math.round(camera.position.y*10)) ||
+						(Math.round(prevPos.z*10)!=Math.round(camera.position.z*10))
 						) {
-						socket.emit('playerPos',{
-								x:camera.position.x,
-								y:camera.position.y,
-								z:camera.position.z
-								});
+					socket.emit('playerPos',{
+							x:camera.position.x,
+							y:camera.position.y,
+							z:camera.position.z
+							});
+					scene.add(genChunk(material_blk,camera.position.x,camera.position.y,camera.position.z,10,5));
 				}
 				//else {console.log('not sending');}
 				prevPos={
@@ -179,6 +159,7 @@ $(function() {
 					y:camera.position.y,
 					z:camera.position.z
 				};
+				renderer.render( scene, camera );
 
 		}
 		socket.on('playerPos',function(data) {
@@ -186,88 +167,55 @@ $(function() {
 				cube.position.y=data.y;
 				cube.position.z=data.z;
 		});
-		function genChunk() {
-				//console.log(PerlinNoise.noise(10,10,.5));
-				//for ()
-
-				//renders grass on the ground
-				geometry_ = new THREE.Geometry();
-				//material = new THREE.MeshBasicMaterial( { color: 0xff0000} );
-				texture_both = THREE.ImageUtils.loadTexture('textures/grass_dirt.png');
-				texture_grass= THREE.ImageUtils.loadTexture('textures/grass.png');
-				texture_dirt= THREE.ImageUtils.loadTexture('textures/dirt.png');
-				
-				material_ = new THREE.MeshFaceMaterial([
-						new THREE.MeshBasicMaterial({ //bottom or back
-						map: texture_grass
-				}), new THREE.MeshBasicMaterial({ //left
-						map: texture_dirt
-				}), new THREE.MeshBasicMaterial({ //top
-						map: texture_grass
-				}), new THREE.MeshBasicMaterial({
-						map: texture_both
-				}), new THREE.MeshBasicMaterial({
-						map: texture_both
-				}), new THREE.MeshBasicMaterial({
-						map: texture_both
-				})]);
-				var simp=new SimplexNoise();
-				/*var scale = 0.02;
-				var ground = -10;
-				var noise, amp, freq, z, o;
-				noise = 0;
-				amp = 1;
-				freq = 1;*/
-
-				var mapSize=50;
-				var campos={
-					x:camera.position.x,
-					y:camera.position.y,
-					z:camera.position.z
-				};
-				for (var i=-mapSize;i<=mapSize;i++) {
-						for (var j=-mapSize;j<=mapSize;j++) {
-							for (var k=-10;k<=0;k++) {
-								//x is i, z is j, y is k
-								/*var octaves=4;
-								var lacunarity = 1.9;
-								var gain = 0.65;
-								var sum = 0.0;
-								var amplitude = 1.0;
-								xp=i;yp=k;zp=j;
-								for (var ii = 0; i < octaves; ii++) {
-									sum += amplitude * simp.noise3d(xp, yp, zp);
-									amplitude *= gain;
-									xp *= lacunarity;
-									yp *= lacunarity;
-									zp *= lacunarity;
-								}*/
-								//lower freq increases features, higher freq = "smoother"
-								var freq=50;
-								//lower freqy = less gaps (more blocks); higher freq= less blocks and more gaps
-								var freqy=10;
-								if (simp.noise3d(i/freq,j/freq,k/freqy)>0) {
-								//if (noise>0) {
-									cube_ = new THREE.Mesh( new THREE.CubeGeometry( 1, 1, 1 ), material_ );
-									cube_.position.x=i+campos.x;
-									//cube_.position.y=PerlinNoise.noise(i*100,j*100,.4)*10-10;
-									//cube_.position.y=simp.noise(i,j)-10;
-									//cube_.position.x=simp.noise(i,j)*100;
-									//cube_.position.y=-10;
-									//cube_.position.y=simp.noise3d(i/freq,j/freq,k/freq)*10+campos.y;
-									cube_.position.y=k+campos.y;
-									cube_.position.z=j+campos.z;
-									//scene.add( cube_ );
-									THREE.GeometryUtils.merge(geometry_,cube_);
-								}
-							}
-						}
-				}
-				mesh_ = new THREE.Mesh( geometry_, material_ );
-				scene.add(mesh_);
-		}
-
 });
+var terrainAlreadyGen=[];
+var genChunk=function(material_blk,xp,yp,zp,hSize,vSize) {
+		//grass block geometry
+		geometry_blk = new THREE.Geometry();
+		//material = new THREE.MeshBasicMaterial( { color: 0xff0000} );
+
+		//material_ = new THREE.MeshBasicMaterial( { color: 0x964B00, wireframe:true} );
+		simp=new SimplexNoise({random:function() {return 0.5;}});//param is the "seed"
+		//var mapSize=50;
+		for (var i=xp-hSize;i<=xp+hSize;i++) {
+				for (var j=zp-hSize;j<=zp+hSize;j++) {
+					for (var k=yp-vSize;k<=yp-vSize;k++) {
+						//i is xp; j is zp, k is yp
+						var blkGeom=drawBlk(i,k,j,material_blk);
+						if (blkGeom) {
+							THREE.GeometryUtils.merge(geometry_blk,blkGeom);
+						}
+					}
+				}
+		}
+		mesh_blk = new THREE.Mesh( geometry_blk, material_blk );
+		return mesh_blk;
+		//scene.add(mesh_blk);
+}
+var drawBlk=function(xp,yp,zp,mat) {
+	if (terrainAlreadyGen.indexOf([xp,yp,zp])===-1)
+	{
+		terrainAlreadyGen.push([xp,yp,zp]);
+	}
+	else
+	{
+		return null;
+	}
+	//lower freq increases features, higher freq = "smoother"
+	var freq=30;
+	//lower freqy = less gaps (more blocks); higher freq= less blocks and more gaps
+	var freqy=20;
+	if (simp.noise3d(xp/freq,zp/freq,yp/freqy)>0) {
+		cube_ = new THREE.Mesh( new THREE.CubeGeometry( 1, 1, 1 ), mat );
+		cube_.position.x=xp;
+		cube_.position.y=yp;
+		cube_.position.z=zp;
+		//scene.add( cube_ );
+		return cube_;
+		//THREE.GeometryUtils.merge(geometry_,cube_);
+	}
+	return null;
+}
 // Ported from Stefan Gustavson's java implementation
 // http://staffwww.itn.liu.se/~stegu/simplexnoise/simplexnoise.pdf
 // Read Stefan's excellent paper for details on how this code works.
