@@ -1,7 +1,7 @@
 #ALWAYS RUN COMMANDS UNDER SUDO!!!
 cd [dir]
 npm install socket.io
-npm install express #not used
+npm install express
 sudo npm install -g nodemon #auto-reruns node when code changes
 #NODEMON::: http://remysharp.com/2010/10/12/nodejs-rapid-development-nodemon/
 
@@ -11,6 +11,7 @@ https://github.com/LearnBoost/socket.io
 
 https://npmjs.org/package/socket.io
 
+#RUNNING THE NODEJS SITE:
 cd node_sites/sockTest
 sudo node app.js
 sudo nodemon app.js

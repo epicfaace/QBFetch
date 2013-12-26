@@ -1,0 +1,52 @@
+html,body {height:99%;}
+#topDiv {
+	width:100%;
+}
+#mainDiv {
+	width:100%;
+	height:90%;
+	overflow: auto;
+}
+#mainDiv table {
+	width:100%;
+	/*max-width:1000px;*/
+}
+#reqForm {
+	float:left;
+	width:40%;
+	max-width:500px;
+}
+td.answer {
+	width:20%;
+	max-width:80px;
+	text-align:right;
+}
+td.question,td.answer {
+	padding:3px;
+}
+td.deleter {
+	width:1%;
+	min-width:20px;
+	text-align:center;
+	color:#aa0000;
+	font-size:16px;
+	line-height: 4px;
+	cursor:pointer;
+}
+td.mover {
+	width:1%;
+	min-width:20px;
+	text-align:center;
+	color:#aaaaaa;
+	font-size:16px;
+	line-height: 4px;
+	cursor:move;
+}
+td.mover,td.deleter {
+	-webkit-touch-callout: none;
+	-webkit-user-select: none;
+	-khtml-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
+}

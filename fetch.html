@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<!--
+
+ADD AN IMAGE WHICH lets you drag/move around entries, like in an iphone/ipad
+-
+-   this symbol
+-
+
+-with a shadow!!! when the boxes are being dragged/moved
+-if you drag the three grey lines right, then a delete option should come up
+
+
+-replace , , with just a ,
+-change the huyen to a ""
+-should highlight FTP in red (useless clue)
+	-->
+<html>
+<head>
+	<title>QB Fetch</title>
+	<script src="jquery.min.js"></script>
+	<script src="handlebars-v1.2.0.js"></script>
+	<link rel="stylesheet" type="text/css" href="fetchCss.css" />
+</head>
+<body>
+	<div id="topDiv">
+		<form id="reqForm">
+			<input type="text" name="info" value="Fermi" />
+			<select name="stype">
+				<option value="Answer">Answer</option>
+				<option value="AnswerQuestion">Question &amp; Answer</option>
+			</select>
+			<input type="submit" />
+		</form>
+		<div id="controls">
+			<input type="button" value="Smart Delimit" id="delimitBtn" onclick="delimitQ()" />
+			<input type="button" value="Order Clues" id="orderBtn" onclick="orderClues()" />
+			<input type="button" value="Save" id="saveBtn" />
+		</div>
+	</div>
+	<script id="questionsTemplate" type="text/x-handlebars-template">
+		<table cellpadding="4">
+		{{#each this}}
+			<tr style="outline:1px solid #aaaaaa;">
+				<!--<td class="mover">-<br>-<br>-</td>-->
+				<td class="deleter">--</td>
+				<td class="question" contenteditable="false">{{question}}</td>
+				<td class="answer" contenteditable="false">{{answer}}</td>
+			</tr>
+		{{/each}}
+		</table>
+	</script>
+	<script id="cluesTemplate" type="text/x-handlebars-template">
+		<table cellpadding="4">
+		{{#each this}}
+			<tr style="outline:1px solid #aaaaaa;">
+				<td class="mover">-<br>-<br>-</td>
+				<td class="question" contenteditable="false">{{this}}</td>
+			</tr>
+		{{/each}}
+		</table>
+	</script>
+	<div id="mainDiv">
+	</div>
+	<script>
+	$(function() {
+		$("form#reqForm").submit(function(e) {
+			e.preventDefault();
+			$.get("/fetchEngine?"+$(this).serialize(), processData);
+		});
+	});
+	function processData(data) {
+		var x=$("<div></div>").html(data);
+		//console.log(x.text());
+		window.stuff=x.text();
+		questions=[];
+		while (stuff.indexOf("ANSWER: ")!=-1) {
+			var qTemp={};
+			qTemp.question=stuff.substring(stuff.indexOf("Question: ")+"Question: ".length,stuff.indexOf("ANSWER: "));
+			qTemp.answer=stuff.substring(stuff.indexOf("ANSWER: ")+"ANSWER: ".length,stuff.indexOf("Report an Error"));
+			if (stuff.indexOf("Result:",stuff.indexOf("Result")+1)==-1) stuff=""; //for last tossup
+			stuff=stuff.substring(stuff.indexOf("Result:",stuff.indexOf("Result")+1));
+			//console.log(qTemp);
+			questions[questions.length]=qTemp;
+		}
+		//questions={"questions":questions};
+		//templating:
+		var Source   = $("#questionsTemplate").html();
+		var Template = Handlebars.compile(Source);
+		$("#mainDiv").html(Template(questions));
+		$("#controls").show();
+		editBinder();
+		$("td.deleter").click(function() {
+			$(this).parent("tr").remove();
+		});
+	}
+	function editBinder() { //binds the content-edit events to the proper td's
+		$("td.question,td.answer").dblclick(function() {
+			$(this).attr("contenteditable","true");
+		}).blur(function() {
+			$(this).attr("contenteditable","false");
+		});
+	}
+	function delimitQ() {
+		window.contentClues=[];
+		$("td.question").each(function() {
+			contentClues=contentClues.concat($(this).html().replace(/(\r\n|\n|\r)/gm,"").replace(/\!\"/g,"\!\"\.").replace(/\?\"/g,"\?\"\.").replace(/(F|f)or 10 points/g,"FTP").replace(/\.\"/g,"\"\.").replace(/\((\*|\+)\)/g,"").replace(/\[\*\]/g,"").replace(/  /g," ").split(".")); //replaces ." with ". ;adds periods after !" and ?"; and removes (*) and [*] and (+) and "  "; and removes \n stuff (not working, fixed in next line); and also removes 'For ten points,'
+			if (contentClues[contentClues.length-1]=="") contentClues.splice(contentClues.length-1,1);
+		});
+		var Source   = $("#cluesTemplate").html();
+		var Template = Handlebars.compile(Source);
+		$("#mainDiv").html(Template(contentClues));
+		editBinder();
+	}
+    function orderClues() {
+    	updateArrayClues();
+		window.wordCounts = { };
+		var words = contentClues.join("\b").split(/\b/);
+		for(var i = 0; i < words.length; i++) {
+			wordCounts["_" + words[i]] = (wordCounts["_" + words[i]] || 0) + 1;
+		}
+		var pronouns=["all","another","any","anybody","anyone","anything","both","each","either","everybody","everyone","everything","few","he","hers","her","herself","him","himself","his","i","it","itself","many","me","my","mine","more","most","much","myself","neither","nobody","none","nothing","one","others","other","ourselves","ours","our","several","she","some","somebody","someone","something","that","theor","theirs","themselves","them","these","they","this","those","us","we","whatever","what","whichever","which","whoever","whomever","whom","whose","who","yourselves","yourself","yours","your","you","aboard","about","above","across","after","against","along","amid","among","anti","around","before","behind","below","beneath","besides","beside","between","beyond","concerning","considering","despite","down","during","except","excepting","excluding","following","inside","minus","over","past","per","plus","regarding","since","than","through","to","toward","towards","under","underneath","unlike","until","up","upon","versus","via","with","withing","without","near","off","of","onto","on","for","from","in","like","into","but","by","as","at"];
+		window.wc={"clues":[],"freqs":[]};
+		for (i in wordCounts) {
+			var filt=i.substring(1).replace(/ /g,"").replace(/\W|_/,"").toLowerCase();
+			if (wordCounts[i]==1||filt==""||filt.length<=3||~pronouns.indexOf(filt)) {
+				delete wordCounts[i];
+				continue;
+			}
+			wc.clues.push(i.substring(1));
+			wc.freqs.push(wordCounts[i]);
+		}
+		for (var q=0;q<=$("td.question").length;q++) {
+			$("td.question").each(function() {
+				this.mywords=[];
+				for (i in wc.clues) {
+					if (~$(this).text().indexOf(wc.clues[i])) {this.mywords.push(wc.clues[i]);}
+				}
+			});
+			$("td.question").addClass("notsorted");
+			$("td.question").each(function() {
+				$(this).removeClass("notsorted");
+				elemwords=this.mywords;
+				var max={"elem":null,"counter":0};
+				$("td.question.notsorted").each(function() {
+					if (this.mywords==elemwords) return;
+					var counter=0;
+					for (i in this.mywords) {
+						if (~elemwords.indexOf(this.mywords[i])) {counter++;}
+					}
+					if (counter>max["counter"]) {
+						max["counter"]=counter;
+						max["elem"]=this;
+					}
+				});
+				$(max["elem"]).removeClass("notsorted");
+				$(max["elem"]).siblings("td.mover").text(max["counter"]);
+				$(max["elem"]).parent("tr").detach().insertAfter($(this).parent("tr"));
+			});
+		}
+		//TODO: soon add a levDist so that forms of same word will be combined; e.g. discover, discovered, discovery
+
+    }
+    function updateArrayClues() {
+    	window.contentClues=[];
+    	$("td.question").each(function() {
+    		contentClues=contentClues.concat($(this).html());
+    	});
+    }
+	//Damerau–Levenshtein distance algorithm, minified, from: http://stackoverflow.com/questions/11919065/sort-an-array-by-the-levenshtein-distance-with-best-performance-in-javascript
+	window.levDist=function(r,a){var t=[],f=r.length,n=a.length;if(0==f)return n;if(0==n)return f;for(var v=f;v>=0;v--)t[v]=[];for(var v=f;v>=0;v--)t[v][0]=v;for(var e=n;e>=0;e--)t[0][e]=e;for(var v=1;f>=v;v++)for(var h=r.charAt(v-1),e=1;n>=e;e++){if(v==e&&t[v][e]>4)return f;var i=a.charAt(e-1),o=h==i?0:1,c=t[v-1][e]+1,u=t[v][e-1]+1,A=t[v-1][e-1]+o;c>u&&(c=u),c>A&&(c=A),t[v][e]=c,v>1&&e>1&&h==a.charAt(e-2)&&r.charAt(v-2)==i&&(t[v][e]=Math.min(t[v][e],t[v-2][e-2]+o))}return t[f][n]};
+	window.relev=function(str) {//excludes articles, prepositions, pronouns, etc.
+		console.log(str);
+		str=str.toLowerCase();
+		var mundane=["a","an","the","i","me","my","you"];
+		for (i in mundane) {
+			var re=new RegExp(" "+mundane[i]+" ","g");
+			str=str.replace(re," ");
+		}
+		console.log(str);
+		console.log("----");
+		return str;
+	}
+	</script>
+</body>
+</html>
+<!--
+"huyen".match(/y/g).length //# of occurrences in a string
+-->
