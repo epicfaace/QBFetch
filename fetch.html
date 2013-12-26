@@ -24,7 +24,7 @@ ADD AN IMAGE WHICH lets you drag/move around entries, like in an iphone/ipad
 <body>
 	<div id="topDiv">
 		<form id="reqForm">
-			<input type="text" name="info" value="Fermi" />
+			<input type="text" name="info" value="Doppler effect" />
 			<select name="stype">
 				<option value="Answer">Answer</option>
 				<option value="AnswerQuestion">Question &amp; Answer</option>
@@ -42,7 +42,7 @@ ADD AN IMAGE WHICH lets you drag/move around entries, like in an iphone/ipad
 		{{#each this}}
 			<tr style="outline:1px solid #aaaaaa;">
 				<!--<td class="mover">-<br>-<br>-</td>-->
-				<td class="deleter">--</td>
+				<td class="deleter big">--</td>
 				<td class="question" contenteditable="false">{{question}}</td>
 				<td class="answer" contenteditable="false">{{answer}}</td>
 			</tr>
@@ -54,6 +54,8 @@ ADD AN IMAGE WHICH lets you drag/move around entries, like in an iphone/ipad
 		{{#each this}}
 			<tr style="outline:1px solid #aaaaaa;">
 				<td class="mover">-<br>-<br>-</td>
+				<td class="deleter">--</td>
+				<td class="prioriter">--</td>
 				<td class="question" contenteditable="false">{{this}}</td>
 			</tr>
 		{{/each}}
@@ -89,15 +91,32 @@ ADD AN IMAGE WHICH lets you drag/move around entries, like in an iphone/ipad
 		$("#mainDiv").html(Template(questions));
 		$("#controls").show();
 		editBinder();
-		$("td.deleter").click(function() {
-			$(this).parent("tr").remove();
-		});
 	}
-	function editBinder() { //binds the content-edit events to the proper td's
+	function editBinder() { //binds the content-edit events to the proper td's //actually, also binds mover, deleter, etc.!
 		$("td.question,td.answer").dblclick(function() {
 			$(this).attr("contenteditable","true");
 		}).blur(function() {
 			$(this).attr("contenteditable","false");
+		});
+		$("td.deleter").click(function() {
+			$(this).parent("tr").remove();
+		});
+		$("td.prioriter").click(function() {
+			var current=$(this).siblings("td.question")[0];
+			//console.log(current);
+			if ($(this).parent("tr").before().length) {
+				$(current).addClass("current").parent("tr").insertBefore($("tr").first());}
+			$("td.question").not("current").each(function() {
+				$(this).parent("tr").insertAfter($(current).parent("tr"));
+				while ($(this).parent("tr").next().length) {
+					//console.log(current.mywords);
+					if (intArr($(this).parent("tr").next().children("td.question")[0].mywords,current.mywords).length>intArr(this.mywords,current.mywords).length) {
+						$(this).parent("tr").insertAfter($(this).parent("tr").next());
+					}
+					else {break;}
+				}
+			});
+			$(current).removeClass("current");
 		});
 	}
 	function delimitQ() {
@@ -130,33 +149,34 @@ ADD AN IMAGE WHICH lets you drag/move around entries, like in an iphone/ipad
 			wc.freqs.push(wordCounts[i]);
 		}
 		
-			$("td.question").each(function() {
-				this.mywords=[];
-				for (i in wc.clues) {
-					if (~$(this).text().indexOf(wc.clues[i])) {this.mywords.push(wc.clues[i]);}
+		$("td.question").each(function() {
+			this.mywords=[];
+			for (i in wc.clues) {
+				if (~$(this).text().indexOf(wc.clues[i])) {this.mywords.push(wc.clues[i]);}
+			}
+		});
+		$("td.question").each(function() {
+			while (true) {
+				if (!$(this).parent("tr").next().length) break;
+				if ($(this).parent("tr").next().children("td.question")[0].mywords.length>this.mywords.length) {
+					//console.log($(this).parent("tr").next().children("td.question")[0].mywords.length+" > "+this.mywords.length);
+					$(this).parent("tr").insertAfter($(this).parent("tr").next());
 				}
-			});
-			$("td.question").each(function() {
-				while (true) {
-					if (!$(this).parent("tr").next().length) break;
-					if ($(this).parent("tr").next().children("td.question")[0].mywords.length>this.mywords.length) {
-						//console.log($(this).parent("tr").next().children("td.question")[0].mywords.length+" > "+this.mywords.length);
-						$(this).parent("tr").insertAfter($(this).parent("tr").next());
-					}
-					else {break;}
+				else {break;}
+			}
+			while (true) {
+				if (!$(this).parent("tr").prev().length) break;
+				if ($(this).parent("tr").prev().children("td.question")[0].mywords.length<this.mywords.length) {
+					//console.log($(this).parent("tr").prev().children("td.question")[0].mywords.length+" < "+this.mywords.length);
+					$(this).parent("tr").insertBefore($(this).parent("tr").prev());
 				}
-				while (true) {
-					if (!$(this).parent("tr").prev().length) break;
-					if ($(this).parent("tr").prev().children("td.question")[0].mywords.length<this.mywords.length) {
-						//console.log($(this).parent("tr").prev().children("td.question")[0].mywords.length+" < "+this.mywords.length);
-						$(this).parent("tr").insertBefore($(this).parent("tr").prev());
-					}
-					else {break;}
-				}
-			});
-			for (var q=0;q<=Math.ceil(.009259*Math.pow($("td.question").length,2)-.6852*$("td.question").length+15.593);q++) { //(58,6),(34,2),(52,4) quad-regression
+				else {break;}
+			}
+		});
+		for (var q=0;q<=Math.ceil(.04*Math.pow($("td.question").length,2)-1.3*$("td.question").length+30);q++) {
+		//for (var q=0;q<=Math.ceil(.009259*Math.pow($("td.question").length,2)-.6852*$("td.question").length+15.593);q++) { //(58,6),(34,2),(52,4) quad-regression
 		//for (var q=0;q<=Math.ceil(.0341152*Math.pow(Math.E,.0488873*$("td.question").length));q++) {//exponential fit
-			//break;
+		//break;
 			$("td.question").addClass("notsorted");
 			$("td.question").each(function() {
 				$(this).removeClass("notsorted");
@@ -189,6 +209,9 @@ ADD AN IMAGE WHICH lets you drag/move around entries, like in an iphone/ipad
     }
 	//Damerau–Levenshtein distance algorithm, minified, from: http://stackoverflow.com/questions/11919065/sort-an-array-by-the-levenshtein-distance-with-best-performance-in-javascript
 	window.levDist=function(r,a){var t=[],f=r.length,n=a.length;if(0==f)return n;if(0==n)return f;for(var v=f;v>=0;v--)t[v]=[];for(var v=f;v>=0;v--)t[v][0]=v;for(var e=n;e>=0;e--)t[0][e]=e;for(var v=1;f>=v;v++)for(var h=r.charAt(v-1),e=1;n>=e;e++){if(v==e&&t[v][e]>4)return f;var i=a.charAt(e-1),o=h==i?0:1,c=t[v-1][e]+1,u=t[v][e-1]+1,A=t[v-1][e-1]+o;c>u&&(c=u),c>A&&(c=A),t[v][e]=c,v>1&&e>1&&h==a.charAt(e-2)&&r.charAt(v-2)==i&&(t[v][e]=Math.min(t[v][e],t[v-2][e-2]+o))}return t[f][n]};
+	//Intersection function, safe, from: http://stackoverflow.com/questions/1885557/simplest-code-for-array-intersection-in-javascript
+	window.intArr=function(e,n){for(var r=0,t=0,a=new Array;r<e.length&&t<n.length;)e[r]<n[t]?r++:e[r]>n[t]?t++:(a.push(e[r]),r++,t++);return a};
+
 	window.relev=function(str) {//excludes articles, prepositions, pronouns, etc.
 		console.log(str);
 		str=str.toLowerCase();

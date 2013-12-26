@@ -24,25 +24,29 @@ td.answer {
 td.question,td.answer {
 	padding:3px;
 }
-td.deleter {
-	width:1%;
-	min-width:20px;
-	text-align:center;
-	color:#aa0000;
-	font-size:16px;
-	line-height: 4px;
-	cursor:pointer;
-}
 td.mover {
-	width:1%;
-	min-width:20px;
-	text-align:center;
 	color:#aaaaaa;
-	font-size:16px;
-	line-height: 4px;
 	cursor:move;
 }
-td.mover,td.deleter {
+td.deleter {
+	color:#aa0000;
+	cursor:pointer;
+}
+td.deleter.big {
+	width:1%;
+	min-width:20px;
+}
+td.prioriter {
+	color:#0000aa;
+	cursor:pointer;
+}
+td.mover,td.deleter,td.prioriter {
+	width:.4%;
+	min-width:10px;
+	padding:2px;
+	text-align:center;
+	font-size:16px;
+	line-height: 4px;
 	-webkit-touch-callout: none;
 	-webkit-user-select: none;
 	-khtml-user-select: none;
