@@ -103,7 +103,7 @@ ADD AN IMAGE WHICH lets you drag/move around entries, like in an iphone/ipad
 	function delimitQ() {
 		window.contentClues=[];
 		$("td.question").each(function() {
-			contentClues=contentClues.concat($(this).html().replace(/(\r\n|\n|\r)/gm,"").replace(/\!\"/g,"\!\"\.").replace(/\?\"/g,"\?\"\.").replace(/(F|f)or 10 points/g,"FTP").replace(/\.\"/g,"\"\.").replace(/\((\*|\+)\)/g,"").replace(/\[\*\]/g,"").replace(/  /g," ").split(".")); //replaces ." with ". ;adds periods after !" and ?"; and removes (*) and [*] and (+) and "  "; and removes \n stuff (not working, fixed in next line); and also removes 'For ten points,'
+			contentClues=contentClues.concat($(this).html().replace(/(\r\n|\n|\r)/gm,"").replace(/\!\"/g,"\!\"\.").replace(/\?\"/g,"\?\"\.").replace(/(F|f)or 1(0|5) points/g,"FTP").replace(/\.\"/g,"\"\.").replace(/\((\*|\+)\)/g,"").replace(/\[\*\]/g,"").replace(/  /g," ").split(".")); //replaces ." with ". ;adds periods after !" and ?"; and removes (*) and [*] and (+) and "  "; and removes \n stuff (not working, fixed in next line); and also removes 'For 10/15 points,'
 			if (contentClues[contentClues.length-1]=="") contentClues.splice(contentClues.length-1,1);
 		});
 		var Source   = $("#cluesTemplate").html();
@@ -129,13 +129,34 @@ ADD AN IMAGE WHICH lets you drag/move around entries, like in an iphone/ipad
 			wc.clues.push(i.substring(1));
 			wc.freqs.push(wordCounts[i]);
 		}
-		for (var q=0;q<=$("td.question").length;q++) {
+		
 			$("td.question").each(function() {
 				this.mywords=[];
 				for (i in wc.clues) {
 					if (~$(this).text().indexOf(wc.clues[i])) {this.mywords.push(wc.clues[i]);}
 				}
 			});
+			$("td.question").each(function() {
+				while (true) {
+					if (!$(this).parent("tr").next().length) break;
+					if ($(this).parent("tr").next().children("td.question")[0].mywords.length>this.mywords.length) {
+						//console.log($(this).parent("tr").next().children("td.question")[0].mywords.length+" > "+this.mywords.length);
+						$(this).parent("tr").insertAfter($(this).parent("tr").next());
+					}
+					else {break;}
+				}
+				while (true) {
+					if (!$(this).parent("tr").prev().length) break;
+					if ($(this).parent("tr").prev().children("td.question")[0].mywords.length<this.mywords.length) {
+						//console.log($(this).parent("tr").prev().children("td.question")[0].mywords.length+" < "+this.mywords.length);
+						$(this).parent("tr").insertBefore($(this).parent("tr").prev());
+					}
+					else {break;}
+				}
+			});
+			for (var q=0;q<=Math.ceil(.009259*Math.pow($("td.question").length,2)-.6852*$("td.question").length+15.593);q++) { //(58,6),(34,2),(52,4) quad-regression
+		//for (var q=0;q<=Math.ceil(.0341152*Math.pow(Math.E,.0488873*$("td.question").length));q++) {//exponential fit
+			//break;
 			$("td.question").addClass("notsorted");
 			$("td.question").each(function() {
 				$(this).removeClass("notsorted");
@@ -153,7 +174,7 @@ ADD AN IMAGE WHICH lets you drag/move around entries, like in an iphone/ipad
 					}
 				});
 				$(max["elem"]).removeClass("notsorted");
-				$(max["elem"]).siblings("td.mover").text(max["counter"]);
+				//$(max["elem"]).siblings("td.mover").text(max["counter"]);
 				$(max["elem"]).parent("tr").detach().insertAfter($(this).parent("tr"));
 			});
 		}
