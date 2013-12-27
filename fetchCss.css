@@ -82,3 +82,6 @@ td.mover,td.deleter,td.prioriter,.unselectable {
 	-ms-user-select: none;
 	user-select: none;
 }
+tr#sampleFinRow {
+	display:none;
+}

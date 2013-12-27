@@ -32,10 +32,12 @@ ADD AN IMAGE WHICH lets you drag/move around entries, like in an iphone/ipad
 				<option value="AnswerQuestion">Question &amp; Answer</option>
 			</select>
 			<input type="submit" />
+			<label id="resultsInfo"></label>
 		</form>
 		<div id="controls">
 			<input type="button" value="Smart Delimit" id="delimitBtn" onclick="delimitQ()" />
 			<input type="button" value="Order Clues" id="orderBtn" onclick="orderClues()" />
+			<input type="button" value="Smart Order" id="orderBtn" onclick="smartOrder()" />
 			<input type="button" value="Save" id="saveBtn" />
 		</div>
 	</div>
@@ -63,10 +65,10 @@ ADD AN IMAGE WHICH lets you drag/move around entries, like in an iphone/ipad
 		{{/each}}
 		</table>
 		<table id="finTbl">
-			<tr style="display:none;">
+			<tr id="sampleFinRow">
 				<td class="mover">-<br>-<br>-</td>
 				<td class="deleter">--</td>
-				<td class="question" contenteditable="false">Sample question</td>
+				<td class="question" contenteditable="false">Sample question. Easter egg! If Daisy eats fifteen cookies and four are left, then how many cookies were there in total? (Ans:19) huehuehue</td>
 			</tr>
 		</table>
 	</script>

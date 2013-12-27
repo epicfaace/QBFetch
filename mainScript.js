@@ -5,6 +5,7 @@ $(function() {
 	});
 });
 function processData(data) {
+	//TODO: add ajax progress with jqXHR, from: http://www.dave-bond.com/blog/2010/01/JQuery-ajax-progress-HMTL5/
 	var x=$("<div></div>").html(data);
 	//console.log(x.text());
 	window.stuff=x.text();
@@ -25,26 +26,62 @@ function processData(data) {
 	$("#mainDiv").html(Template(questions));
 	$("#controls").show();
 	editBinder();
+	$("#resultsInfo").text(questions.length+" results");
+	//TODO: if error, #resultsInfo should say error, too.
 }
 function editBinder() { //binds the content-edit events to the proper td's //actually, also binds mover, deleter, etc.!
-	$("td.question").dblclick(function() {
+	$("#mainTbl td.question,td.answer").dblclick(function() {
 		$(this).attr("contenteditable","true");
 	}).blur(function() {
 		$(this).attr("contenteditable","false");
-	})
-	.keypress(function(e) {
+	});
+	$("#finTbl td.question").dblclick(function() {//creates a new question
+		$(this).text($(this).attr("data-q"))
+			.attr("contenteditable","true").focus()[0].scrollIntoView();
+	}).blur(function() {
+		$(this).attr("contenteditable","false");
+		//TODO:make this work; it should delete the cell if cell is empty or full of spaces:
+		//if (!$(this).text().replace(/ /g,"").length) {$(this).parent("tr").remove();return;}
+		
+		if ($(this).text().substring($(this).text().length-3)!="...") {
+			$(this).attr("data-q",$(this).text())
+				.text($(this).text().substring(0,80)+"...");
+		}
+	});
+	$("td.question").keypress(function(e) {
 	    if(e.which == 13) {
 	    	e.preventDefault();
 	    	var qText=$(this).text();
 	    	var offset=getCaretCharacterOffsetWithin(this);
 	    	if (offset>=qText.length-1||offset==0) return; //prevents from pressing enter at the end and making an empty cell, or from selecting everything and 
 	    	$(this).html(qText.slice(0,offset))
-	    	//if (qText.slice(offset).replace(" ","").length) {
-	    		$(this).parent("tr").clone().insertAfter($(this).parent("tr")).children("td.question").html(qText.slice(offset)).focus();
+    		if (!$(this).siblings("td.answer").text().replace(/ /g,"").length) {//if answer is empty, doesn't create a new tr; rather puts the second half of text in the empty answer box
+    			$(this).siblings("td.answer").text(qText.slice(offset));
+	    		$(this).on("keyup",function() { //so it doesn't create random extra rows (which would be by triggering more keypress events for the new row because the key hasn't keyupped yet!)
+	    			$(this).siblings("td.answer").focus();
+	    		});
+    		}
+    		else {
+	    		$(this).parent("tr").clone().insertAfter($(this).parent("tr")).children("td.question").text(qText.slice(offset));
 	    		$(this).on("keyup",function() { //so it doesn't create random extra rows (which would be by triggering more keypress events for the new row because the key hasn't keyupped yet!)
 	    			$(this).parent("tr").next().children("td.question").focus();
 	    		});
-	    	//}
+    		}
+	    	editBinder();
+	    	console.log("pressed",offset,qText.length);
+	    }
+	});
+	$("td.answer").keypress(function(e) {//creates a new question
+	    if(e.which == 13) {
+	    	e.preventDefault();
+	    	var qText=$(this).text();
+	    	var offset=getCaretCharacterOffsetWithin(this);
+	    	if (offset>=qText.length-1||offset==0) return; //prevents from pressing enter at the end and making an empty cell, or from selecting everything and 
+	    	$(this).html(qText.slice(0,offset))
+    		$(this).parent("tr").clone().insertAfter($(this).parent("tr")).children("td.question").text(qText.slice(offset)).siblings("td.answer").html("");
+    		$(this).on("keyup",function() { //so it doesn't create random extra rows (which would be by triggering more keypress events for the new row because the key hasn't keyupped yet!)
+    			$(this).parent("tr").next().children("td.question").focus();
+    		});
 	    	editBinder();
 	    	console.log("pressed",offset,qText.length);
 	    }
@@ -52,7 +89,9 @@ function editBinder() { //binds the content-edit events to the proper td's //act
 	$("td.deleter").click(function() {
 		$(this).parent("tr").remove();
 	});
-	$("td.prioriter").click(function() {
+	$("#mainTbl td.prioriter").unbind().click(function(e) {
+		console.log($(this).next().text());
+		//TODO: add a prioriter for the #finTbl stuff too, so that relevant clues to the 'final' clue can be prioritized, just in case they're missed the first time...
 		var current=$(this).siblings("td.question")[0];
 		//console.log(current);
 		if ($(this).parent("tr").before().length) {
@@ -72,9 +111,14 @@ function editBinder() { //binds the content-edit events to the proper td's //act
 			}
 		});
 		$(current).removeClass("current");
+
 		//instead, moves it to the #finTbl:
-		$("")
-		$(current).addClass("current").parent("tr").appendTo($("#finTbl"));
+		$("#finTbl tr#sampleFinRow").clone().attr("id","").children("td.question").text($(current).text())
+													.parent("tr").appendTo("#finTbl")[0].scrollIntoView();
+		$(this).parent("tr").remove();
+		editBinder();
+		$("#finTbl tr").last().children("td.question").blur(); //the blur() makes the text become ... immediately
+		//$("#finTbl").scrollTop($("#finTbl")[0].scrollHeight);//scrolls finTbl to bottom
 	});
 }
 function delimitQ() {
@@ -146,6 +190,10 @@ function orderClues() {
 			else {break;}
 		}
 	});
+}
+//TODO: soon add a levDist so that forms of same word will be combined; e.g. discover, discovered, discovery
+function smartOrder() {
+	orderClues();
 	for (var q=0;q<=Math.ceil(.04*Math.pow($("#mainTbl td.question").length,2)-1.3*$("#mainTbl td.question").length+30);q++) {
 	//for (var q=0;q<=Math.ceil(.009259*Math.pow($("td.question").length,2)-.6852*$("td.question").length+15.593);q++) { //(58,6),(34,2),(52,4) quad-regression
 	//for (var q=0;q<=Math.ceil(.0341152*Math.pow(Math.E,.0488873*$("td.question").length));q++) {//exponential fit
@@ -171,8 +219,6 @@ function orderClues() {
 			$(max["elem"]).parent("tr").detach().insertAfter($(this).parent("tr"));
 		});
 	}
-	//TODO: soon add a levDist so that forms of same word will be combined; e.g. discover, discovered, discovery
-
 }
 function updateArrayClues() {
 	window.contentClues=[];
