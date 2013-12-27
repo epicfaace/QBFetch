@@ -40,7 +40,7 @@ ADD AN IMAGE WHICH lets you drag/move around entries, like in an iphone/ipad
 		</div>
 	</div>
 	<script id="questionsTemplate" type="text/x-handlebars-template">
-		<table cellpadding="4" id="mainTbl">
+		<table id="mainTbl">
 		{{#each this}}
 			<tr>
 				<!--<td class="mover">-<br>-<br>-</td>-->
@@ -52,7 +52,7 @@ ADD AN IMAGE WHICH lets you drag/move around entries, like in an iphone/ipad
 		</table>
 	</script>
 	<script id="cluesTemplate" type="text/x-handlebars-template">
-		<table cellpadding="4" id="mainTbl">
+		<table id="mainTbl" class="clueTbl">
 		{{#each this}}
 			<tr>
 				<td class="mover">-<br>-<br>-</td>
@@ -62,8 +62,15 @@ ADD AN IMAGE WHICH lets you drag/move around entries, like in an iphone/ipad
 			</tr>
 		{{/each}}
 		</table>
+		<table id="finTbl">
+			<tr style="display:none;">
+				<td class="mover">-<br>-<br>-</td>
+				<td class="deleter">--</td>
+				<td class="question" contenteditable="false">Sample question</td>
+			</tr>
+		</table>
 	</script>
-	<div id="mainDiv">
+	<div id="mainDiv" class="questions">
 	</div>
 	<script src="mainScript.js"></script>
 </body>

@@ -5,11 +5,34 @@ html,body {height:99%;}
 #mainDiv {
 	width:100%;
 	height:90%;
-	overflow: auto;
+	overflow: hidden;
 }
-#mainDiv table {
+#mainDiv.questions {
+	overflow:auto;
+}
+#mainTbl {
 	width:100%;
 	/*max-width:1000px;*/
+}
+#mainTbl tr {
+	background-color:#FFFFFF;
+	outline:1px solid #aaaaaa;
+}
+#mainTbl.clueTbl {
+	display: block;
+	float:left;
+	overflow: auto;
+	width:75%;
+	height:100%;
+}
+#finTbl {
+	display:block;
+	overflow: auto;
+	height:100%;
+}
+#finTbl tr {
+	background-color:#FFFFFF;
+	outline:1px solid #0000ff;
 }
 #reqForm {
 	float:left;
@@ -42,10 +65,6 @@ td.deleter.big {
 td.prioriter {
 	color:#0000aa;
 	cursor:pointer;
-}
-#mainTbl tr {
-	background-color:#FFFFFF;
-	outline:1px solid #aaaaaa;
 }
 td.mover,td.deleter,td.prioriter {
 	width:.4%;

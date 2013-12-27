@@ -57,11 +57,11 @@ function editBinder() { //binds the content-edit events to the proper td's //act
 		//console.log(current);
 		if ($(this).parent("tr").before().length) {
 			//ACTUALLY, moving it to the top might not be desirable; maybe a way to mark clues as "done" or "final" so they can go out of the way???
-			$(current).addClass("current").parent("tr").insertBefore($("tr").first()); //TODO: should "break off" of the table and slide over everything to go to the top
-
+			//$(current).addClass("current").parent("tr").insertBefore($("tr").first()); //TODO: should "break off" of the table and slide over everything to go to the top
+			$(current).addClass("current");
 		}
 		//$(this).parent("tr").nextAll("tr").children("td.question").not("current").each(function() {
-		$("td.question").not("current").each(function() {
+		$("#mainTbl td.question").not("current").each(function() {
 			$(this).parent("tr").insertAfter($(current).parent("tr"));
 			while ($(this).parent("tr").next().length) {
 				//console.log(current.mywords);
@@ -72,11 +72,14 @@ function editBinder() { //binds the content-edit events to the proper td's //act
 			}
 		});
 		$(current).removeClass("current");
+		//instead, moves it to the #finTbl:
+		$("")
+		$(current).addClass("current").parent("tr").appendTo($("#finTbl"));
 	});
 }
 function delimitQ() {
 	window.contentClues=[];
-	$("td.question").each(function() {
+	$("#mainTbl td.question").each(function() {
 		//searching for h.w. bush as answer doesn't work for this algorithm....
 		var filtered=$(this).html().replace(/(\r\n|\n|\r)/gm,"").replace(/\!\"/g,"\!\"\.")
 			.replace(/\?\"/g,"\?\"\.").replace(/(F|f)or (1|2)(0|5) points/g,"FTP")
@@ -91,10 +94,10 @@ function delimitQ() {
 	});
 	var Source   = $("#cluesTemplate").html();
 	var Template = Handlebars.compile(Source);
-	$("#mainDiv").html(Template(contentClues));
+	$("#mainDiv").removeClass("questions").html(Template(contentClues));
 	editBinder();
-	$("td.question:contains('FTP')").addClass("qFTP");
-	$("table#mainTbl tbody").sortable({
+	$("#mainTbl td.question:contains('FTP')").addClass("qFTP");
+	$("table#mainTbl tbody,#finTbl tbody").sortable({
 		axis:"y",
 		handle:"td.mover",
 		helper:"clone",
@@ -119,13 +122,13 @@ function orderClues() {
 		wc.freqs.push(wordCounts[i]);
 	}
 	
-	$("td.question").each(function() {
+	$("#mainTbl td.question").each(function() {
 		this.mywords=[];
 		for (i in wc.clues) {
 			if (~$(this).text().indexOf(wc.clues[i])) {this.mywords.push(wc.clues[i]);}
 		}
 	});
-	$("td.question").each(function() {
+	$("#mainTbl td.question").each(function() {
 		while (true) {
 			if (!$(this).parent("tr").next().length) break;
 			if ($(this).parent("tr").next().children("td.question")[0].mywords.length>this.mywords.length) {
@@ -143,16 +146,16 @@ function orderClues() {
 			else {break;}
 		}
 	});
-	for (var q=0;q<=Math.ceil(.04*Math.pow($("td.question").length,2)-1.3*$("td.question").length+30);q++) {
+	for (var q=0;q<=Math.ceil(.04*Math.pow($("#mainTbl td.question").length,2)-1.3*$("#mainTbl td.question").length+30);q++) {
 	//for (var q=0;q<=Math.ceil(.009259*Math.pow($("td.question").length,2)-.6852*$("td.question").length+15.593);q++) { //(58,6),(34,2),(52,4) quad-regression
 	//for (var q=0;q<=Math.ceil(.0341152*Math.pow(Math.E,.0488873*$("td.question").length));q++) {//exponential fit
 	//break;
-		$("td.question").addClass("notsorted");
-		$("td.question").each(function() {
+		$("#mainTbl td.question").addClass("notsorted");
+		$("#mainTbl td.question").each(function() {
 			$(this).removeClass("notsorted");
 			elemwords=this.mywords;
 			var max={"elem":null,"counter":0};
-			$("td.question.notsorted").each(function() {
+			$("#mainTbl td.question.notsorted").each(function() {
 				if (this.mywords==elemwords) return;
 				var counter=0;
 				for (i in this.mywords) {
@@ -173,7 +176,7 @@ function orderClues() {
 }
 function updateArrayClues() {
 	window.contentClues=[];
-	$("td.question").each(function() {
+	$("#mainTbl td.question").each(function() {
 		contentClues=contentClues.concat($(this).html());
 	});
 }
