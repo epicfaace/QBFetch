@@ -1,11 +1,14 @@
 $(function() {
 	$("form#reqForm").submit(function(e) {
 		e.preventDefault();
+		$("#resultsInfo").html("<font color='black'>Loading...</font>");
 		$.get("/fetchEngine?"+$(this).serialize(), processData);
 	});
 });
 function processData(data) {
 	//TODO: add ajax progress with jqXHR, from: http://www.dave-bond.com/blog/2010/01/JQuery-ajax-progress-HMTL5/
+	$("#mainTbl").removeClass("clueTbl");
+	$("#mainDiv").addClass("questions");
 	var x=$("<div></div>").html(data);
 	//console.log(x.text());
 	window.stuff=x.text();
@@ -26,7 +29,7 @@ function processData(data) {
 	$("#mainDiv").html(Template(questions));
 	$("#controls").show();
 	editBinder();
-	$("#resultsInfo").text(questions.length+" results");
+	$("#resultsInfo").html("<font color='"+((questions.length)?"green":"red")+"'>"+questions.length+" results</font>");
 	//TODO: if error, #resultsInfo should say error, too.
 }
 function editBinder() { //binds the content-edit events to the proper td's //actually, also binds mover, deleter, etc.!
@@ -68,7 +71,7 @@ function editBinder() { //binds the content-edit events to the proper td's //act
 	    		});
     		}
 	    	editBinder();
-	    	console.log("pressed",offset,qText.length);
+	    	//console.log("pressed",offset,qText.length);
 	    }
 	});
 	$("td.answer").keypress(function(e) {//creates a new question
@@ -83,14 +86,14 @@ function editBinder() { //binds the content-edit events to the proper td's //act
     			$(this).parent("tr").next().children("td.question").focus();
     		});
 	    	editBinder();
-	    	console.log("pressed",offset,qText.length);
+	    	//console.log("pressed",offset,qText.length);
 	    }
 	});
 	$("td.deleter").click(function() {
 		$(this).parent("tr").remove();
 	});
 	$("#mainTbl td.prioriter").unbind().click(function(e) {
-		console.log($(this).next().text());
+		//console.log($(this).next().text());
 		//TODO: add a prioriter for the #finTbl stuff too, so that relevant clues to the 'final' clue can be prioritized, just in case they're missed the first time...
 		var current=$(this).siblings("td.question")[0];
 		//console.log(current);
@@ -125,12 +128,13 @@ function delimitQ() {
 	window.contentClues=[];
 	$("#mainTbl td.question").each(function() {
 		//searching for h.w. bush as answer doesn't work for this algorithm....
-		var filtered=$(this).html().replace(/(\r\n|\n|\r)/gm,"").replace(/\!\"/g,"\!\"\.")
-			.replace(/\?\"/g,"\?\"\.").replace(/(F|f)or (1|2)(0|5) points/g,"FTP")
-			.replace(/\.\"/g,"\"\.").replace(/\((\*|\+)\)/g,"").replace(/\[\*\]/g,"")
-			.replace(/  /g," ").split(/([^A-Z])\.\s*/g); //replaces ." with ". ;adds periods after !" and ?"; and removes (*) and [*] and (+) and "  "; and removes \n stuff (not working, fixed in next line); and also removes 'For 10/15/20/25 points,'
-		for (var c=0;c<filtered.length-1;c++) {//weird fix
+		var filtered=$(this).html().replace(/(\r\n|\n|\r)/gm,"").replace(/(\!|\?)\"(\s*[A-Z])/g,"$1\"\.$2")//the !" and ?" is only when a space+capital letter is after it
+			.replace(/(F|f)or (1|2)(0|5) points/g,"FTP").replace(/\.\"/g,"\"\.")
+			.replace(/\((\*|\+)\)/g,"").replace(/\[\*\]/g,"").replace(/  /g," ")
+			.replace(/((M|D)(r|s)(s)*?)\./g,"$1|,|").split(/([^A-Z])\.\s*/g); //replaces ." with ". ;adds periods after !" and ?"; and removes (*) and [*] and (+) and "  "; and removes \n stuff (not working, fixed in next line); and also removes 'For 10/15/20/25 points,'
+		for (var c=0;c<filtered.length-1;c++) {//weird fix; TODO: fix later with capturing groups: replace(/(grp)/g,"$1")
 			filtered[c]+=filtered[c+1];
+			filtered[c]=filtered[c].replace(/((M|D)(r|s)(s)*?)\|\,\|/g,"$1.");//for Mr. Ms. Dr. Drs. Mrs. etc; before, they are turned into Mr|,| and now changing them back
 			filtered.splice(c+1,1);
 		}
 		contentClues=contentClues.concat(filtered);

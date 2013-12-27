@@ -25,12 +25,12 @@ app.get('/handlebars-v1.2.0.js',function(req,res) {
 });
 
 app.get('/fetchEngine', function(request, response) {
-	console.log('query received')
+	//console.log('query received')
 	/*var query=url.parse(request.url, true).query;
 	console.log(query['info']);*/
 	var query=url.parse(request.url, false).query;
   //res.send('You sent the name "' + query + '".');
-  console.log(query);
+  //console.log(query);
 	var options = {
 	  host: 'www.quinterest.org',
 	  port: 80,
@@ -46,7 +46,7 @@ app.get('/fetchEngine', function(request, response) {
 		});
 		result.on('end', function () {
 		    response.end();
-		    console.log("query ended");
+		    //console.log("query ended");
 		});
 	}).on('error',function(err) {
 		console.log(err.message);
