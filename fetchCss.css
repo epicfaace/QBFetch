@@ -24,6 +24,9 @@ td.answer {
 td.question,td.answer {
 	padding:3px;
 }
+td.question.qFTP {
+	background-color:rgba(255,0,0,.1);
+}
 td.mover {
 	color:#aaaaaa;
 	cursor:move;
@@ -40,6 +43,10 @@ td.prioriter {
 	color:#0000aa;
 	cursor:pointer;
 }
+#mainTbl tr {
+	background-color:#FFFFFF;
+	outline:1px solid #aaaaaa;
+}
 td.mover,td.deleter,td.prioriter {
 	width:.4%;
 	min-width:10px;
@@ -47,6 +54,8 @@ td.mover,td.deleter,td.prioriter {
 	text-align:center;
 	font-size:16px;
 	line-height: 4px;
+}
+td.mover,td.deleter,td.prioriter,.unselectable {
 	-webkit-touch-callout: none;
 	-webkit-user-select: none;
 	-khtml-user-select: none;

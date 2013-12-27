@@ -17,9 +17,11 @@ ADD AN IMAGE WHICH lets you drag/move around entries, like in an iphone/ipad
 <html>
 <head>
 	<title>QB Fetch</title>
+	<link rel="stylesheet" href="http://code.jquery.com/ui/1.10.3/themes/smoothness/jquery-ui.css">
+	<link rel="stylesheet" type="text/css" href="fetchCss.css" />
 	<script src="jquery.min.js"></script>
 	<script src="handlebars-v1.2.0.js"></script>
-	<link rel="stylesheet" type="text/css" href="fetchCss.css" />
+	<script src="http://code.jquery.com/ui/1.10.3/jquery-ui.js"></script>
 </head>
 <body>
 	<div id="topDiv">
@@ -38,9 +40,9 @@ ADD AN IMAGE WHICH lets you drag/move around entries, like in an iphone/ipad
 		</div>
 	</div>
 	<script id="questionsTemplate" type="text/x-handlebars-template">
-		<table cellpadding="4">
+		<table cellpadding="4" id="mainTbl">
 		{{#each this}}
-			<tr style="outline:1px solid #aaaaaa;">
+			<tr>
 				<!--<td class="mover">-<br>-<br>-</td>-->
 				<td class="deleter big">--</td>
 				<td class="question" contenteditable="false">{{question}}</td>
@@ -50,9 +52,9 @@ ADD AN IMAGE WHICH lets you drag/move around entries, like in an iphone/ipad
 		</table>
 	</script>
 	<script id="cluesTemplate" type="text/x-handlebars-template">
-		<table cellpadding="4">
+		<table cellpadding="4" id="mainTbl">
 		{{#each this}}
-			<tr style="outline:1px solid #aaaaaa;">
+			<tr>
 				<td class="mover">-<br>-<br>-</td>
 				<td class="deleter">--</td>
 				<td class="prioriter">--</td>
@@ -63,168 +65,7 @@ ADD AN IMAGE WHICH lets you drag/move around entries, like in an iphone/ipad
 	</script>
 	<div id="mainDiv">
 	</div>
-	<script>
-	$(function() {
-		$("form#reqForm").submit(function(e) {
-			e.preventDefault();
-			$.get("/fetchEngine?"+$(this).serialize(), processData);
-		});
-	});
-	function processData(data) {
-		var x=$("<div></div>").html(data);
-		//console.log(x.text());
-		window.stuff=x.text();
-		questions=[];
-		while (stuff.indexOf("ANSWER: ")!=-1) {
-			var qTemp={};
-			qTemp.question=stuff.substring(stuff.indexOf("Question: ")+"Question: ".length,stuff.indexOf("ANSWER: "));
-			qTemp.answer=stuff.substring(stuff.indexOf("ANSWER: ")+"ANSWER: ".length,stuff.indexOf("Report an Error"));
-			if (stuff.indexOf("Result:",stuff.indexOf("Result")+1)==-1) stuff=""; //for last tossup
-			stuff=stuff.substring(stuff.indexOf("Result:",stuff.indexOf("Result")+1));
-			//console.log(qTemp);
-			questions[questions.length]=qTemp;
-		}
-		//questions={"questions":questions};
-		//templating:
-		var Source   = $("#questionsTemplate").html();
-		var Template = Handlebars.compile(Source);
-		$("#mainDiv").html(Template(questions));
-		$("#controls").show();
-		editBinder();
-	}
-	function editBinder() { //binds the content-edit events to the proper td's //actually, also binds mover, deleter, etc.!
-		$("td.question,td.answer").dblclick(function() {
-			$(this).attr("contenteditable","true");
-		}).blur(function() {
-			$(this).attr("contenteditable","false");
-		});
-		$("td.deleter").click(function() {
-			$(this).parent("tr").remove();
-		});
-		$("td.prioriter").click(function() {
-			var current=$(this).siblings("td.question")[0];
-			//console.log(current);
-			if ($(this).parent("tr").before().length) {
-				$(current).addClass("current").parent("tr").insertBefore($("tr").first());}
-			$("td.question").not("current").each(function() {
-				$(this).parent("tr").insertAfter($(current).parent("tr"));
-				while ($(this).parent("tr").next().length) {
-					//console.log(current.mywords);
-					if (intArr($(this).parent("tr").next().children("td.question")[0].mywords,current.mywords).length>intArr(this.mywords,current.mywords).length) {
-						$(this).parent("tr").insertAfter($(this).parent("tr").next());
-					}
-					else {break;}
-				}
-			});
-			$(current).removeClass("current");
-		});
-	}
-	function delimitQ() {
-		window.contentClues=[];
-		$("td.question").each(function() {
-			contentClues=contentClues.concat($(this).html().replace(/(\r\n|\n|\r)/gm,"").replace(/\!\"/g,"\!\"\.").replace(/\?\"/g,"\?\"\.").replace(/(F|f)or 1(0|5) points/g,"FTP").replace(/\.\"/g,"\"\.").replace(/\((\*|\+)\)/g,"").replace(/\[\*\]/g,"").replace(/  /g," ").split(".")); //replaces ." with ". ;adds periods after !" and ?"; and removes (*) and [*] and (+) and "  "; and removes \n stuff (not working, fixed in next line); and also removes 'For 10/15 points,'
-			if (contentClues[contentClues.length-1]=="") contentClues.splice(contentClues.length-1,1);
-		});
-		var Source   = $("#cluesTemplate").html();
-		var Template = Handlebars.compile(Source);
-		$("#mainDiv").html(Template(contentClues));
-		editBinder();
-	}
-    function orderClues() {
-    	updateArrayClues();
-		window.wordCounts = { };
-		var words = contentClues.join("\b").split(/\b/);
-		for(var i = 0; i < words.length; i++) {
-			wordCounts["_" + words[i]] = (wordCounts["_" + words[i]] || 0) + 1;
-		}
-		var pronouns=["all","another","any","anybody","anyone","anything","both","each","either","everybody","everyone","everything","few","he","hers","her","herself","him","himself","his","i","it","itself","many","me","my","mine","more","most","much","myself","neither","nobody","none","nothing","one","others","other","ourselves","ours","our","several","she","some","somebody","someone","something","that","theor","theirs","themselves","them","these","they","this","those","us","we","whatever","what","whichever","which","whoever","whomever","whom","whose","who","yourselves","yourself","yours","your","you","aboard","about","above","across","after","against","along","amid","among","anti","around","before","behind","below","beneath","besides","beside","between","beyond","concerning","considering","despite","down","during","except","excepting","excluding","following","inside","minus","over","past","per","plus","regarding","since","than","through","to","toward","towards","under","underneath","unlike","until","up","upon","versus","via","with","withing","without","near","off","of","onto","on","for","from","in","like","into","but","by","as","at"];
-		window.wc={"clues":[],"freqs":[]};
-		for (i in wordCounts) {
-			var filt=i.substring(1).replace(/ /g,"").replace(/\W|_/,"").toLowerCase();
-			if (wordCounts[i]==1||filt==""||filt.length<=3||~pronouns.indexOf(filt)) {
-				delete wordCounts[i];
-				continue;
-			}
-			wc.clues.push(i.substring(1));
-			wc.freqs.push(wordCounts[i]);
-		}
-		
-		$("td.question").each(function() {
-			this.mywords=[];
-			for (i in wc.clues) {
-				if (~$(this).text().indexOf(wc.clues[i])) {this.mywords.push(wc.clues[i]);}
-			}
-		});
-		$("td.question").each(function() {
-			while (true) {
-				if (!$(this).parent("tr").next().length) break;
-				if ($(this).parent("tr").next().children("td.question")[0].mywords.length>this.mywords.length) {
-					//console.log($(this).parent("tr").next().children("td.question")[0].mywords.length+" > "+this.mywords.length);
-					$(this).parent("tr").insertAfter($(this).parent("tr").next());
-				}
-				else {break;}
-			}
-			while (true) {
-				if (!$(this).parent("tr").prev().length) break;
-				if ($(this).parent("tr").prev().children("td.question")[0].mywords.length<this.mywords.length) {
-					//console.log($(this).parent("tr").prev().children("td.question")[0].mywords.length+" < "+this.mywords.length);
-					$(this).parent("tr").insertBefore($(this).parent("tr").prev());
-				}
-				else {break;}
-			}
-		});
-		for (var q=0;q<=Math.ceil(.04*Math.pow($("td.question").length,2)-1.3*$("td.question").length+30);q++) {
-		//for (var q=0;q<=Math.ceil(.009259*Math.pow($("td.question").length,2)-.6852*$("td.question").length+15.593);q++) { //(58,6),(34,2),(52,4) quad-regression
-		//for (var q=0;q<=Math.ceil(.0341152*Math.pow(Math.E,.0488873*$("td.question").length));q++) {//exponential fit
-		//break;
-			$("td.question").addClass("notsorted");
-			$("td.question").each(function() {
-				$(this).removeClass("notsorted");
-				elemwords=this.mywords;
-				var max={"elem":null,"counter":0};
-				$("td.question.notsorted").each(function() {
-					if (this.mywords==elemwords) return;
-					var counter=0;
-					for (i in this.mywords) {
-						if (~elemwords.indexOf(this.mywords[i])) {counter++;}
-					}
-					if (counter>max["counter"]) {
-						max["counter"]=counter;
-						max["elem"]=this;
-					}
-				});
-				$(max["elem"]).removeClass("notsorted");
-				//$(max["elem"]).siblings("td.mover").text(max["counter"]);
-				$(max["elem"]).parent("tr").detach().insertAfter($(this).parent("tr"));
-			});
-		}
-		//TODO: soon add a levDist so that forms of same word will be combined; e.g. discover, discovered, discovery
-
-    }
-    function updateArrayClues() {
-    	window.contentClues=[];
-    	$("td.question").each(function() {
-    		contentClues=contentClues.concat($(this).html());
-    	});
-    }
-	//Damerau–Levenshtein distance algorithm, minified, from: http://stackoverflow.com/questions/11919065/sort-an-array-by-the-levenshtein-distance-with-best-performance-in-javascript
-	window.levDist=function(r,a){var t=[],f=r.length,n=a.length;if(0==f)return n;if(0==n)return f;for(var v=f;v>=0;v--)t[v]=[];for(var v=f;v>=0;v--)t[v][0]=v;for(var e=n;e>=0;e--)t[0][e]=e;for(var v=1;f>=v;v++)for(var h=r.charAt(v-1),e=1;n>=e;e++){if(v==e&&t[v][e]>4)return f;var i=a.charAt(e-1),o=h==i?0:1,c=t[v-1][e]+1,u=t[v][e-1]+1,A=t[v-1][e-1]+o;c>u&&(c=u),c>A&&(c=A),t[v][e]=c,v>1&&e>1&&h==a.charAt(e-2)&&r.charAt(v-2)==i&&(t[v][e]=Math.min(t[v][e],t[v-2][e-2]+o))}return t[f][n]};
-	//Intersection function, safe, from: http://stackoverflow.com/questions/1885557/simplest-code-for-array-intersection-in-javascript
-	window.intArr=function(e,n){for(var r=0,t=0,a=new Array;r<e.length&&t<n.length;)e[r]<n[t]?r++:e[r]>n[t]?t++:(a.push(e[r]),r++,t++);return a};
-
-	window.relev=function(str) {//excludes articles, prepositions, pronouns, etc.
-		console.log(str);
-		str=str.toLowerCase();
-		var mundane=["a","an","the","i","me","my","you"];
-		for (i in mundane) {
-			var re=new RegExp(" "+mundane[i]+" ","g");
-			str=str.replace(re," ");
-		}
-		console.log(str);
-		console.log("----");
-		return str;
-	}
-	</script>
+	<script src="mainScript.js"></script>
 </body>
 </html>
 <!--

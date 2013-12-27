@@ -10,6 +10,10 @@ app.use(express.bodyParser());
 app.get('/', function(req, res) {
 	res.sendfile("fetch.html");
 });
+app.get('/mainScript.js',function(req,res) {
+	res.header('Cache-Control', 'no-cache, private, no-store, must-revalidate, max-stale=0, post-check=0, pre-check=0');
+	res.sendfile("mainScript.js");
+});
 app.get('/jquery.min.js', function(req, res) {
 	res.sendfile("jquery.min.js");
 });
