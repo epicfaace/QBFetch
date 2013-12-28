@@ -1,3 +1,4 @@
+//TODO: glitch where pressing enter in a delimited clue doesn't make a new clue
 $(function() {
 	$("form#reqForm").submit(function(e) {
 		e.preventDefault();
