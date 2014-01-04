@@ -9,4 +9,5 @@ Icon?
 ehthumbs.db
 Thumbs.db
 *.timemachine.supported
+
 /node_modules/

@@ -17,6 +17,9 @@ ADD AN IMAGE WHICH lets you drag/move around entries, like in an iphone/ipad
 
 TODO:able to select sections of final clue, and those are searched in other clues and they are matched in order of priority; sort of like a ctrl+f
 TODO:save, export to qbdata
+
+TODO:-when pressing enter on blue list, should make new item rather than being deleted
+TODO:-can open/close items on blue list
 	-->
 <html>
 <head>
@@ -35,9 +38,10 @@ TODO:save, export to qbdata
 				<option value="Answer">Answer</option>
 				<option value="AnswerQuestion">Question &amp; Answer</option>
 			</select>
-			<input type="submit" />
 			<label id="resultsInfo"></label>
+			<input type="submit" />
 		</form>
+		<div id="resultsInfo"></div>
 		<div id="controls">
 			<input type="button" value="Smart Delimit" id="delimitBtn" onclick="delimitQ()" />
 			<input type="button" value="Order Clues" id="orderBtn" onclick="orderClues()" />

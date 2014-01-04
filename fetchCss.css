@@ -36,9 +36,20 @@ html,body {height:99%;}
 }
 #reqForm {
 	float:left;
-	width:40%;
+	/*width:40%;*/
 	max-width:500px;
 }
+/*#resultsInfo {
+	min-width:60px;
+	float:left;
+}
+#controls,#resultsInfo,#reqForm {
+	white-space:nowrap;
+}
+#controls *,#resultsInfo *,#reqForm * {
+	display: inline-block;
+	white-space:normal;
+}*/
 td.answer {
 	width:20%;
 	max-width:80px;
