@@ -1,0 +1,80 @@
+import webapp2;
+import cgi;
+import re;
+import os;
+import jinja2;
+import json
+import urllib
+from google.appengine.api import urlfetch
+
+jinja_environment = jinja2.Environment('<%', '%>', '<%=', '%>', '<%#', '%>',autoescape=True,
+    loader=jinja2.FileSystemLoader(os.path.join(os.path.dirname(__file__), 'templates')));
+class fetchUI(webapp2.RequestHandler):
+	def fillTemplate (self,template_values={'name':'Ashwin'}):
+		template = jinja_environment.get_template('fetch.html');
+		self.response.out.write(template.render(template_values));
+	def get(self):
+		"""global users
+		#game_key=self.request.get("key");
+		userId=self.request.get("userId");
+		if not userId: userId="guest"+str(len(users));
+		game_key=str(int((round(time_.time() * 1000))))+"."+str(randint(1, 1000));
+		token = channel.create_channel(userId+str(game_key))
+		users.append([userId,game_key]);
+		template_values = {
+							'me':userId,
+							'game_key':game_key,
+							'token': token
+		                   }
+		self.fillTemplate(template_values);"""
+		self.fillTemplate({'name':'Ashwin'});
+		#self.response.out.write("huyen")
+
+
+class fetchProxy(webapp2.RequestHandler):
+	def fillTemplate (self,template_values={'name':'Ashwin'}):
+		template = jinja_environment.get_template('socketPage.html');
+		self.response.out.write(template.render(template_values));
+	def get(self):
+		"""global users
+		#game_key=self.request.get("key");
+		userId=self.request.get("userId");
+		if not userId: userId="guest"+str(len(users));
+		game_key=str(int((round(time_.time() * 1000))))+"."+str(randint(1, 1000));
+		token = channel.create_channel(userId+str(game_key))
+		users.append([userId,game_key]);
+		template_values = {
+							'me':userId,
+							'game_key':game_key,
+							'token': token
+		                   }
+		self.fillTemplate(template_values);"""
+		#self.fillTemplate({'name':'Ashwin'});
+		#second arg is default value
+		url = 'http://www.quinterest.org/php/search.php?'+'info='+urllib.quote_plus(self.request.get('info','Fermi'))+'&stype='+self.request.get('stype','Answer')+'&categ=All&difficulty=HS&tournamentyear=All';
+		#try:
+		result = urlfetch.fetch(url)
+		#result.status_code https://developers.google.com/appengine/docs/python/urlfetch/responseobjects
+		self.response.out.write(result.content)
+		#except urllib2.URLError, e:
+		#  self.response.out.write(e)
+		
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
