@@ -18,12 +18,17 @@ html,body {height:99%;}
 	background-color:#FFFFFF;
 	outline:1px solid #aaaaaa;
 }
-#mainTbl.clueTbl {
+#mainTblWrapper {
 	display: block;
 	float:left;
-	overflow: auto;
 	width:75%;
 	height:100%;
+}
+#mainTbl.clueTbl {
+	display: block;
+	width:100%;
+	height:100%;
+	overflow: auto;
 }
 #finTbl {
 	display:block;

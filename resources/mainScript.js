@@ -1,10 +1,32 @@
 //TODO: glitch where pressing enter in a delimited clue doesn't make a new clue
+//TODO: glitch with delimiters: A namesake nova occurred in a Cornell, Wieman, et. al. experiment (search term 'einstein')
 $(function() {
 	$("form#reqForm").submit(function(e) {
 		e.preventDefault();
 		$("#resultsInfo").html("<font color='black'>Loading...</font>");
 		$.get("/fetchEngine?"+$(this).serialize(), processData);
 	});
+	
+	//some clever code which detects when user has STOPPED resizing; saves a lot of lag!
+	var rtime = new Date(1, 1, 2000, 12,00,00);
+	var timeout = false;
+	var delta = 200;
+	$(window).resize(function() {
+	    rtime = new Date();
+	    if (timeout === false) {
+	        timeout = true;
+	        setTimeout(resizeend, delta);
+	    }
+	});
+	function resizeend() {
+	    if (new Date() - rtime < delta) {
+	        setTimeout(resizeend, delta);
+	    } else {
+	        timeout = false;
+	        //alert('Done resizing');
+	        resizeTbls();
+	    }               
+	}
 });
 function processData(data) {
 	//TODO: add ajax progress with jqXHR, from: http://www.dave-bond.com/blog/2010/01/JQuery-ajax-progress-HMTL5/
@@ -43,7 +65,7 @@ function editBinder() { //binds the content-edit events to the proper td's //act
 		$(this).text($(this).attr("data-q")).attr("contenteditable","true").focus().addClass("opened");//[0].scrollIntoView();
 		minimizeFins($(this));
 	}).blur(function() {
-		$(this).attr("contenteditable","false");
+		$(this).attr("contenteditable","false").attr("data-q",$(this).text());
 		//TODO:make this work; it should delete the cell if cell is empty or full of spaces://actually, maybe not, it's unnecessary
 		//if (!$(this).text().replace(/ /g,"").length) {$(this).parent("tr").remove();return;}
 		
@@ -126,12 +148,15 @@ function editBinder() { //binds the content-edit events to the proper td's //act
 }
 function minimizeFins(exception) {
 	$("#finTbl td.question.opened").not(exception).each(function() {//"minimizes" all other open cells, so when current cell is blurred, doesn't immediately close up
+		//var cutLength=Math.round(5*Math.pow(1.0077,$("#finTbl").width()));
+		var cutLength=Math.round($("#finTbl").width()/12*3);
+		//console.log(cutLength);
 		if ($(this).text().substring($(this).text().length-3)!="...") {
 			$(this).attr("data-q",$(this).text())
-				.text($(this).text().substring(0,80)+"...");
+				.text($(this).text().substring(0,cutLength)+"...");
 		}
 		$(this).removeClass("opened");
-	})
+	});
 }
 function delimitQ() {
 	window.contentClues=[];
@@ -154,13 +179,21 @@ function delimitQ() {
 	$("#mainDiv").removeClass("questions").html(Template(contentClues));
 	editBinder();
 	$("#mainTbl td.question:contains('FTP')").addClass("qFTP");
-	$("table#mainTbl tbody,#finTbl tbody").sortable({
+	$("#mainTbl tbody,#finTbl tbody").sortable({
 		axis:"y",
 		handle:"td.mover",
 		helper:"clone",
 	});
-	//$("#mainTblWrapper").resizable();
+	$("#mainTblWrapper").resizable({containment: "#mainDiv",handles: "e",
+		resize:resizeTbls
+	});
 
+}
+function resizeTbls() { //opens&closes each question so the correct amt of abbreviation (...) is shown, depending on the window size
+	$("#finTbl td.question").addClass("opened").each(function() {
+		$(this).text($(this).attr("data-q"));
+	});
+	minimizeFins();
 }
 function indexClues() { //makes wc's, assigns mywords
 	updateArrayClues();
