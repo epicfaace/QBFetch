@@ -7,6 +7,7 @@ import jinja2;
 jinja_environment = jinja2.Environment('<%', '%>', '<%=', '%>', '<%#', '%>',autoescape=True,
 	loader=jinja2.FileSystemLoader(os.path.join(os.path.dirname(__file__), 'templates')));
 from qbfetch import *;
+from dataStuff import *;
 
 """class fetchUI(webapp2.RequestHandler):
 	def post(self):
@@ -16,7 +17,10 @@ from qbfetch import *;
 		#self.response.out.write(self.request);"""
 
 app = webapp2.WSGIApplication([('/', fetchUI),
-								('/fetchEngine',fetchProxy)
+								('/fetchEngine',fetchProxy),
+								('/saveQ',saveQ),
+								('/getQ',getQ),
+								('/quiz',quizPage)
 							  ],
                               debug=True);
 

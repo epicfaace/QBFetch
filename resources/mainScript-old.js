@@ -40,13 +40,17 @@ function editBinder() { //binds the content-edit events to the proper td's //act
 		$(this).attr("contenteditable","false");
 	});
 	$("#finTbl td.question").dblclick(function() {//creates a new question
-		$(this).text($(this).attr("data-q")).attr("contenteditable","true").focus().addClass("opened");//[0].scrollIntoView();
-		minimizeFins($(this));
+		$(this).text($(this).attr("data-q"))
+			.attr("contenteditable","true").focus()[0].scrollIntoView();
 	}).blur(function() {
 		$(this).attr("contenteditable","false");
-		//TODO:make this work; it should delete the cell if cell is empty or full of spaces://actually, maybe not, it's unnecessary
+		//TODO:make this work; it should delete the cell if cell is empty or full of spaces:
 		//if (!$(this).text().replace(/ /g,"").length) {$(this).parent("tr").remove();return;}
 		
+		if ($(this).text().substring($(this).text().length-3)!="...") {
+			$(this).attr("data-q",$(this).text())
+				.text($(this).text().substring(0,80)+"...");
+		}
 	});
 	$("td.question").keypress(function(e) {
 	    if(e.which == 13) {
@@ -55,13 +59,13 @@ function editBinder() { //binds the content-edit events to the proper td's //act
 	    	var offset=getCaretCharacterOffsetWithin(this);
 	    	if (offset>=qText.length-1||offset==0) return; //prevents from pressing enter at the end and making an empty cell, or from selecting everything and 
 	    	$(this).html(qText.slice(0,offset))
-    		if (!$(this).siblings("td.answer").text().replace(/ /g,"").length&&$("td.answer").length) {//if answer is empty, doesn't create a new tr; rather puts the second half of text in the empty answer box
+    		if (!$(this).siblings("td.answer").text().replace(/ /g,"").length) {//if answer is empty, doesn't create a new tr; rather puts the second half of text in the empty answer box
     			$(this).siblings("td.answer").text(qText.slice(offset));
 	    		$(this).on("keyup",function() { //so it doesn't create random extra rows (which would be by triggering more keypress events for the new row because the key hasn't keyupped yet!)
 	    			$(this).siblings("td.answer").focus();
 	    		});
     		}
-    		else {//normal thing, creates a new cell
+    		else {
 	    		$(this).parent("tr").clone().insertAfter($(this).parent("tr")).children("td.question").text(qText.slice(offset));
 	    		$(this).on("keyup",function() { //so it doesn't create random extra rows (which would be by triggering more keypress events for the new row because the key hasn't keyupped yet!)
 	    			$(this).parent("tr").next().children("td.question").focus();
@@ -90,7 +94,6 @@ function editBinder() { //binds the content-edit events to the proper td's //act
 		$(this).parent("tr").remove();
 	});
 	$("#mainTbl td.prioriter").unbind().click(function(e) {
-		indexClues();
 		//console.log($(this).next().text());
 		//TODO: add a prioriter for the #finTbl stuff too, so that relevant clues to the 'final' clue can be prioritized, just in case they're missed the first time...
 		var current=$(this).siblings("td.question")[0];
@@ -118,20 +121,9 @@ function editBinder() { //binds the content-edit events to the proper td's //act
 													.parent("tr").appendTo("#finTbl")[0].scrollIntoView();
 		$(this).parent("tr").remove();
 		editBinder();
-		$("#finTbl tr").last().children("td.question");//.blur(); //the blur() makes the text become ... immediately NVM, ... immediately is taken care of by minimizeFins() later
+		$("#finTbl tr").last().children("td.question").blur(); //the blur() makes the text become ... immediately
 		//$("#finTbl").scrollTop($("#finTbl")[0].scrollHeight);//scrolls finTbl to bottom
-		$("#finTbl td.question").addClass("opened");
-		minimizeFins();
 	});
-}
-function minimizeFins(exception) {
-	$("#finTbl td.question.opened").not(exception).each(function() {//"minimizes" all other open cells, so when current cell is blurred, doesn't immediately close up
-		if ($(this).text().substring($(this).text().length-3)!="...") {
-			$(this).attr("data-q",$(this).text())
-				.text($(this).text().substring(0,80)+"...");
-		}
-		$(this).removeClass("opened");
-	})
 }
 function delimitQ() {
 	window.contentClues=[];
@@ -159,10 +151,8 @@ function delimitQ() {
 		handle:"td.mover",
 		helper:"clone",
 	});
-	//$("#mainTblWrapper").resizable();
-
 }
-function indexClues() { //makes wc's, assigns mywords
+function orderClues() {
 	updateArrayClues();
 	window.wordCounts = { };
 	var words = contentClues.join("\b").split(/\b/);
@@ -180,15 +170,13 @@ function indexClues() { //makes wc's, assigns mywords
 		wc.clues.push(i.substring(1));
 		wc.freqs.push(wordCounts[i]);
 	}
+	
 	$("#mainTbl td.question").each(function() {
 		this.mywords=[];
 		for (i in wc.clues) {
 			if (~$(this).text().indexOf(wc.clues[i])) {this.mywords.push(wc.clues[i]);}
 		}
 	});
-}
-function orderClues() {
-	indexClues();
 	$("#mainTbl td.question").each(function() {
 		while (true) {
 			if (!$(this).parent("tr").next().length) break;
@@ -238,16 +226,14 @@ function smartOrder() {
 	}
 }
 function saveClues() {
-	//TODO: use fallback for JSON.stringify(), from: https://github.com/douglascrockford/JSON-js/blob/master/json2.js
-	finClues=[];
-	$("#finTbl td.question:not(:first)").each(function() {//excludes the sample question
-		finClues=finClues.concat($(this).attr("data-q"));
+	window.finClues=[];
+	$("#finTbl td.question").each(function() {
+		finClues=finClues.concat($(this).text());
 	});
-	//finClues=finClues.splice(1).join(",");
 	$.post("/saveQ",{
-		'term':$("input#clueInput").val(),
+		'term':$("input#clueInput").text(),
 		'category':$("#optionCategory").val(),
-		'clues':JSON.stringify(finClues)
+		'clues':finClues
 		}).done(function(data) {
 			console.log(data);
 	});

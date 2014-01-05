@@ -20,6 +20,11 @@ TODO:save, export to qbdata
 
 TODO:-when pressing enter on blue list, should make new item rather than being deleted
 TODO:-can open/close items on blue list
+
+<%=name%> hue
+TODO: make a separate place where the category, labels, etc. txtboxes are shown, so you can save with options
+
+TODO: auto-detect category (category of questions is in the ajax response)
 	-->
 <html>
 <head>
@@ -33,7 +38,7 @@ TODO:-can open/close items on blue list
 <body>
 	<div id="topDiv">
 		<form id="reqForm">
-			<input type="text" name="info" value="Doppler effect" />
+			<input type="text" name="info" id="clueInput" value="" />
 			<select name="stype">
 				<option value="Answer">Answer</option>
 				<option value="AnswerQuestion">Question &amp; Answer</option>
@@ -44,9 +49,25 @@ TODO:-can open/close items on blue list
 		<div id="resultsInfo"></div>
 		<div id="controls">
 			<input type="button" value="Smart Delimit" id="delimitBtn" onclick="delimitQ()" />
+			<input type="button" value="Index Clues" id="orderBtn" onclick="indexClues()" />
 			<input type="button" value="Order Clues" id="orderBtn" onclick="orderClues()" />
 			<input type="button" value="Smart Order" id="orderBtn" onclick="smartOrder()" />
-			<input type="button" value="Save" id="saveBtn" />
+			<input type="button" value="Save" id="saveBtn" onclick="saveClues()" />
+			Category:
+			<select name="category" id="optionCategory">
+	            <option value="Other">Select Category</option>
+	            <option value="Literature">Literature</option>
+	            <option value="History">History</option>
+	            <option value="Science">Science</option>
+	            <option value="Fine Arts">Fine Arts</option>
+	            <option value="Trash">Trash</option>
+	            <option value="Mythology">Mythology</option>
+	            <option value="Philosophy">Philosophy</option>
+	            <option value="Social Socience">Social Science</option>
+	            <option value="Religion">Religion</option>
+	            <option value="Geography">Geography</option>
+	        </select>
+			</select>
 		</div>
 	</div>
 	<script id="questionsTemplate" type="text/x-handlebars-template">
@@ -62,16 +83,18 @@ TODO:-can open/close items on blue list
 		</table>
 	</script>
 	<script id="cluesTemplate" type="text/x-handlebars-template">
-		<table id="mainTbl" class="clueTbl">
-		{{#each this}}
-			<tr>
-				<td class="mover">-<br>-<br>-</td>
-				<td class="deleter">--</td>
-				<td class="prioriter">--</td>
-				<td class="question" contenteditable="false">{{this}}</td>
-			</tr>
-		{{/each}}
-		</table>
+
+			<table id="mainTbl" class="clueTbl">
+			{{#each this}}
+				<tr>
+					<td class="mover">-<br>-<br>-</td>
+					<td class="deleter">--</td>
+					<td class="prioriter">--</td>
+					<td class="question" contenteditable="false">{{this}}</td>
+				</tr>
+			{{/each}}
+			</table>
+
 		<table id="finTbl">
 			<tr id="sampleFinRow">
 				<td class="mover">-<br>-<br>-</td>

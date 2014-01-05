@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>Quiz</title>
+	<script src="resources/jquery.min.js"></script>
+	<script src="resources/qset.js"></script>
+	<link href='http://fonts.googleapis.com/css?family=Droid+Sans:400,700' rel='stylesheet' type='text/css'>
+	<style>
+	html,body {height:100%;}
+	body {
+		font-family:"Droid Sans";
+	}
+	div#question {
+		width:80%;
+		max-width:800px;
+		max-height:350px;
+		height:60%;
+		border:2px solid gray;
+		padding:1%;
+		overflow-y:auto;
+		overflow-x:hidden;
+	}
+	form#ansForm {
+		height:10%;
+		margin-top:5%;
+	}
+	form#ansForm > * {
+		height:100%;
+		max-height:30px;
+	}
+	form#ansForm input#answer {
+		width:40%;
+	}
+	form#ansForm input#submitBtn {
+		width:15%;
+	}
+	form#ansForm span#wrong {
+		width:45%;
+	}
+	div#left {
+		height:100%;
+		width:80%;
+		float:left;
+	}
+	div#right {
+		float:right;
+		height:100%;
+		width:20%;
+		max-width:200px;
+		overflow-y:auto;
+		overflow-x:hidden;
+	}
+	</style>
+</head>
+<body>
+	<div id="left">
+		<div id="question"></div>
+		<form id="ansForm">
+			<input type="text" id="answer">
+			<input type="submit" id="submitBtn">
+			<span id="wrong"></span>
+		</form>
+	</div>
+	<div id="right">
+		Stuff:<br>
+	</div>
+	<script>
+		$(function() {
+			for (i in allsets) {
+				$("<a class='button' href='javascript:void(0)' data-i='"+i+"'>"+allsets[i].setName+"</a><br>").appendTo("div#right");
+			}
+			$("#ansForm").submit(function(e) {
+				e.preventDefault();
+				if (wrongElem) {
+					wrongElem=null;
+					nextQ();
+					return;
+				}
+				qAns($("#answer").val().trim());
+			});
+			$("a.button").click(function(e) {
+				e.preventDefault();
+				$(this).css("font-weight","bold");
+				init(allsets[$(this).attr("data-i")].termList);
+			});
+		});
+		function init(s) {
+			window.qsetorig=s;
+			q=0;
+			wrongElem=null; //if waiting to proceed to next question (if true, reading all the answers)
+			parse();
+			nextQ();
+		}
+		window.parse=function() {
+			window.curdel=[]; //mastered terms; deleted from the set, displayed later in qAns() after the <hr>
+			for (j in qsetorig) {
+				curdel[j]={"term":qsetorig[j].term,"def":[]};
+				var jdef=qsetorig[j].def;
+				if (jdef[jdef.length-1]==".") qsetorig[j].def=jdef.substr(0,jdef.length-1);
+				qsetorig[j].def=qsetorig[j].def.split(".");
+			}
+			//console.log(curdel);
+			window.curset=qsetorig;
+			//JSON.parse()
+			//$("#question").text(JSON.stringify(qsetorig));
+		};
+		function nextQ(list) {
+			wrongElem=null;
+			$("#wrong").text("");
+			$("#answer").val("");
+			prevQ=q;
+			while (q==prevQ||Math.random()>.9) { //ensures that same question doesn't come up twice in a row 90% of the time
+				q = Math.floor(Math.random()*curset.length)
+			}
+			n = Math.floor(Math.random()*curset[q].def.length);
+			if (curset[q].def.length==0) nextQ();
+			$("#question").text(curset[q].def[n]);
+		}
+		function qAns(answer) {
+			$("#wrong").text(curset[q].term);
+			wrongElem=curset[q].def.splice(n,1); //actually not always wrong; just the definition in which you answered
+			$("#question").append("<br><br>"+curset[q].def.join(".<br><br>")+"<hr>"+curdel[q].def.join(".<br><br>"));
+			if (answer.toLowerCase()==curset[q].term.toLowerCase()) {
+				$("#wrong").css("color","#009900");
+				curdel[q].def.push(wrongElem);
+			}
+			else {
+				$("#wrong").css("color","#990000");
+				curset[q].def.push(wrongElem);
+			}
+		}
+	</script>
+</body>
