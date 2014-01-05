@@ -1,5 +1,4 @@
 //TODO: glitch where pressing enter in a delimited clue doesn't make a new clue
-//TODO: glitch with delimiters: A namesake nova occurred in a Cornell, Wieman, et. al. experiment (search term 'einstein')
 $(function() {
 	$("form#reqForm").submit(function(e) {
 		e.preventDefault();
@@ -33,7 +32,6 @@ function processData(data) {
 	$("#mainTbl").removeClass("clueTbl");
 	$("#mainDiv").addClass("questions");
 	var x=$("<div></div>").html(data);
-	//console.log(x.text());
 	window.stuff=x.text();
 	questions=[];
 	while (stuff.indexOf("ANSWER: ")!=-1) {
@@ -42,10 +40,8 @@ function processData(data) {
 		qTemp.answer=stuff.substring(stuff.indexOf("ANSWER: ")+"ANSWER: ".length,stuff.indexOf("Report an Error"));
 		if (stuff.indexOf("Result:",stuff.indexOf("Result")+1)==-1) stuff=""; //for last tossup
 		stuff=stuff.substring(stuff.indexOf("Result:",stuff.indexOf("Result")+1));
-		//console.log(qTemp);
 		questions[questions.length]=qTemp;
 	}
-	//questions={"questions":questions};
 	//templating:
 	var Source   = $("#questionsTemplate").html();
 	var Template = Handlebars.compile(Source);
@@ -90,7 +86,6 @@ function editBinder() { //binds the content-edit events to the proper td's //act
 	    		});
     		}
 	    	editBinder();
-	    	//console.log("pressed",offset,qText.length);
 	    }
 	});
 	$("td.answer").keypress(function(e) {//creates a new question
@@ -105,7 +100,6 @@ function editBinder() { //binds the content-edit events to the proper td's //act
     			$(this).parent("tr").next().children("td.question").focus();
     		});
 	    	editBinder();
-	    	//console.log("pressed",offset,qText.length);
 	    }
 	});
 	$("td.deleter").click(function() {
@@ -113,16 +107,13 @@ function editBinder() { //binds the content-edit events to the proper td's //act
 	});
 	$("#mainTbl td.prioriter").unbind().click(function(e) {
 		indexClues();
-		//console.log($(this).next().text());
 		//TODO: add a prioriter for the #finTbl stuff too, so that relevant clues to the 'final' clue can be prioritized, just in case they're missed the first time...
 		var current=$(this).siblings("td.question")[0];
 		//console.log(current);
 		if ($(this).parent("tr").before().length) {
 			//ACTUALLY, moving it to the top might not be desirable; maybe a way to mark clues as "done" or "final" so they can go out of the way???
-			//$(current).addClass("current").parent("tr").insertBefore($("tr").first()); //TODO: should "break off" of the table and slide over everything to go to the top
 			$(current).addClass("current");
 		}
-		//$(this).parent("tr").nextAll("tr").children("td.question").not("current").each(function() {
 		$("#mainTbl td.question").not("current").each(function() {
 			$(this).parent("tr").insertAfter($(current).parent("tr"));
 			while ($(this).parent("tr").next().length) {
@@ -140,17 +131,14 @@ function editBinder() { //binds the content-edit events to the proper td's //act
 													.parent("tr").appendTo("#finTbl")[0].scrollIntoView();
 		$(this).parent("tr").remove();
 		editBinder();
-		$("#finTbl tr").last().children("td.question");//.blur(); //the blur() makes the text become ... immediately NVM, ... immediately is taken care of by minimizeFins() later
-		//$("#finTbl").scrollTop($("#finTbl")[0].scrollHeight);//scrolls finTbl to bottom
+		$("#finTbl tr").last().children("td.question");
 		$("#finTbl td.question").addClass("opened");
 		minimizeFins();
 	});
 }
 function minimizeFins(exception) {
 	$("#finTbl td.question.opened").not(exception).each(function() {//"minimizes" all other open cells, so when current cell is blurred, doesn't immediately close up
-		//var cutLength=Math.round(5*Math.pow(1.0077,$("#finTbl").width()));
 		var cutLength=Math.round($("#finTbl").width()/12*3);
-		//console.log(cutLength);
 		if ($(this).text().substring($(this).text().length-3)!="...") {
 			$(this).attr("data-q",$(this).text())
 				.text($(this).text().substring(0,cutLength)+"...");
@@ -161,7 +149,8 @@ function minimizeFins(exception) {
 function delimitQ() {
 	window.contentClues=[];
 	$("#mainTbl td.question").each(function() {
-		//searching for h.w. bush as answer doesn't work for this algorithm....
+		//TODO: glitch: searching for h.w. bush as answer doesn't work for this algorithm....
+		//TODO: glitch with delimiters: A namesake nova occurred in a Cornell, Wieman, et. al. experiment (search term 'einstein')
 		var filtered=$(this).html().replace(/(\r\n|\n|\r)/gm,"").replace(/(\!|\?)\"(\s*[A-Z])/g,"$1\"\.$2")//the !" and ?" is only when a space+capital letter is after it
 			.replace(/(F|f)or (1|2)(0|5) points/g,"FTP").replace(/\.\"/g,"\"\.")
 			.replace(/\((\*|\+)\)/g,"").replace(/\[\*\]/g,"").replace(/  /g," ")
@@ -226,7 +215,6 @@ function orderClues() {
 		while (true) {
 			if (!$(this).parent("tr").next().length) break;
 			if ($(this).parent("tr").next().children("td.question")[0].mywords.length>this.mywords.length) {
-				//console.log($(this).parent("tr").next().children("td.question")[0].mywords.length+" > "+this.mywords.length);
 				$(this).parent("tr").insertAfter($(this).parent("tr").next());
 			}
 			else {break;}
@@ -234,7 +222,6 @@ function orderClues() {
 		while (true) {
 			if (!$(this).parent("tr").prev().length) break;
 			if ($(this).parent("tr").prev().children("td.question")[0].mywords.length<this.mywords.length) {
-				//console.log($(this).parent("tr").prev().children("td.question")[0].mywords.length+" < "+this.mywords.length);
 				$(this).parent("tr").insertBefore($(this).parent("tr").prev());
 			}
 			else {break;}
@@ -245,9 +232,6 @@ function orderClues() {
 function smartOrder() {
 	orderClues();
 	for (var q=0;q<=Math.ceil(.04*Math.pow($("#mainTbl td.question").length,2)-1.3*$("#mainTbl td.question").length+30);q++) {
-	//for (var q=0;q<=Math.ceil(.009259*Math.pow($("td.question").length,2)-.6852*$("td.question").length+15.593);q++) { //(58,6),(34,2),(52,4) quad-regression
-	//for (var q=0;q<=Math.ceil(.0341152*Math.pow(Math.E,.0488873*$("td.question").length));q++) {//exponential fit
-	//break;
 		$("#mainTbl td.question").addClass("notsorted");
 		$("#mainTbl td.question").each(function() {
 			$(this).removeClass("notsorted");
@@ -276,7 +260,6 @@ function saveClues() {
 	$("#finTbl td.question:not(:first)").each(function() {//excludes the sample question
 		finClues=finClues.concat($(this).attr("data-q"));
 	});
-	//finClues=finClues.splice(1).join(",");
 	$.post("/saveQ",{
 		'term':$("input#clueInput").val(),
 		'category':$("#optionCategory").val(),
@@ -297,16 +280,3 @@ window.levDist=function(r,a){var t=[],f=r.length,n=a.length;if(0==f)return n;if(
 window.intArr=function(e,n){for(var r=0,t=0,a=new Array;r<e.length&&t<n.length;)e[r]<n[t]?r++:e[r]>n[t]?t++:(a.push(e[r]),r++,t++);return a};
 //gets caret position within a contenteditable, from: http://stackoverflow.com/questions/4811822/get-a-ranges-start-and-end-offsets-relative-to-its-parent-container/4812022#4812022
 window.getCaretCharacterOffsetWithin=function(e){var t=0;var n=e.ownerDocument||e.document;var r=n.defaultView||n.parentWindow;var i;if(typeof r.getSelection!="undefined"){var s=r.getSelection().getRangeAt(0);var o=s.cloneRange();o.selectNodeContents(e);o.setEnd(s.endContainer,s.endOffset);t=o.toString().length}else if((i=n.selection)&&i.type!="Control"){var u=i.createRange();var a=n.body.createTextRange();a.moveToElementText(e);a.setEndPoint("EndToEnd",u);t=a.text.length}return t}
-
-window.relev=function(str) {//excludes articles, prepositions, pronouns, etc.
-	console.log(str);
-	str=str.toLowerCase();
-	var mundane=["a","an","the","i","me","my","you"];
-	for (i in mundane) {
-		var re=new RegExp(" "+mundane[i]+" ","g");
-		str=str.replace(re," ");
-	}
-	console.log(str);
-	console.log("----");
-	return str;
-}
