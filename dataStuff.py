@@ -32,7 +32,12 @@ class saveQ(webapp2.RequestHandler):
 class getQ(webapp2.RequestHandler):
 	def get(self):
 		q = Term.all()
-		q.filter("term =",self.request.get("term").lower())
+		if (self.request.get("all")):
+			pass
+		elif (self.request.get("gql")):
+			q=Term.gql(self.request.get("term"));
+		else:
+			q.filter("term =",self.request.get("term").lower())
 		#q.filter("last_name =", "Smith")
 		#q.filter("height <=", max_height)
 		#q.order("-height")

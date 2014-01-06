@@ -1,4 +1,34 @@
 html,body {height:99%;}
+#header {
+	width:100%;
+	height:4%;
+	min-height:15px;
+	max-height:50px;
+	padding:.3%;
+}
+.tab {
+	display:inline-block;
+	height:94%;
+	width:10%;
+	min-width:100px;
+	background-color:rgba(0,0,255,.75);
+	border:1px solid black;
+	color:#EEFFEE;
+	text-align:center;
+	margin:0 3%;
+	padding:auto;
+	cursor:pointer;
+	-moz-box-shadow:    2px 2px 3px 4px #ddd;
+	-webkit-box-shadow: 2px 2px 3px 4px #ddd;
+	box-shadow:         2px 2px 3px 4px #ddd;
+}
+.tab p {
+	height:40%;
+	vertical-align: middle;
+	font-size:25%;
+	letter-spacing: 2px;
+	font-family: 'Open Sans', Verdana, sans-serif;
+}
 #topDiv {
 	width:100%;
 }

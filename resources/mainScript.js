@@ -5,6 +5,12 @@ $(function() {
 		$("#resultsInfo").html("<font color='black'>Loading...</font>");
 		$.get("/fetchEngine?"+$(this).serialize(), processData);
 	});
+	$(".tab").click(function() {
+		window.location.href = $(this).attr("data-url");
+	});
+	window.onbeforeunload = function() {
+	    return 'Are you sure you want to navigate away from this page?';
+	};
 	
 	//some clever code which detects when user has STOPPED resizing; saves a lot of lag!
 	var rtime = new Date(1, 1, 2000, 12,00,00);
