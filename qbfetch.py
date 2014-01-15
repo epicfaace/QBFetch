@@ -37,7 +37,7 @@ class fetchProxy(webapp2.RequestHandler):
 							'token': token
 		                   }
 		self.fillTemplate(template_values);"""
-		#self.fillTemplate({'name':'Ashwin'});
+		"""#self.fillTemplate({'name':'Ashwin'});
 		#second arg is default value
 		url = 'http://www.quinterest.org/php/search.php?'+'info='+urllib.quote_plus(self.request.get('info','Fermi'))+'&stype='+self.request.get('stype','Answer')+'&categ=All&difficulty=HS&tournamentyear=All';
 		#try:
@@ -45,8 +45,12 @@ class fetchProxy(webapp2.RequestHandler):
 		#result.status_code https://developers.google.com/appengine/docs/python/urlfetch/responseobjects
 		self.response.out.write(result.content)
 		#except urllib2.URLError, e:
-		#  self.response.out.write(e)
-
+		#  self.response.out.write(e)"""
+		for t in urllib.quote_plus(self.request.get('info','Fermi')).split("%3B"):
+			url = 'http://www.quinterest.org/php/search.php?'+'info='+t+'&stype='+self.request.get('stype','Answer')+'&categ=All&difficulty=HS&tournamentyear=All';
+			result = urlfetch.fetch(url)
+			self.response.out.write(result.content)
+		#'\n'.join(fullstring.split('\n')[1:])
 
 
 
