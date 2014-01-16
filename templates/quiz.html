@@ -84,7 +84,7 @@
 					data=JSON.parse(data);
 					window.allsets=window.allsets.concat(data);
 					for (i in data) {
-						$("<a class='button' href='javascript:void(0)' data-i='"+String(i-2+allsets.length)+"'>"+data[i].term+"</a><br>").appendTo("div#right");
+						$("<a class='button' href='javascript:void(0)' data-i='"+String(i-data.length+allsets.length)+"'>"+data[i].term+"</a><br>").appendTo("div#right");
 					}
 					eventBinder();
 				})
