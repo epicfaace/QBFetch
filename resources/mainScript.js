@@ -9,7 +9,7 @@ $(function() {
 		window.location.href = $(this).attr("data-url");
 	});
 	window.onbeforeunload = function() {
-	    return 'Are you sure you want to navigate away from this page?';
+	    //return 'Are you sure you want to navigate away from this page?';
 	};
 	
 	//some clever code which detects when user has STOPPED resizing; saves a lot of lag!
@@ -152,7 +152,7 @@ function minimizeFins(exception) {
 		$(this).removeClass("opened");
 	});
 }
-function delimitQ() {
+function delimitQ(order) {
 	window.contentClues=[];
 	$("#mainTbl td.question").each(function() {
 		//TODO: glitch: searching for h.w. bush as answer doesn't work for this algorithm....
@@ -169,6 +169,20 @@ function delimitQ() {
 		contentClues=contentClues.concat(filtered);
 		if (contentClues[contentClues.length-1]=="") contentClues.splice(contentClues.length-1,1);
 	});
+	if ((typeof order !== "undefined")&&order) {
+		var contentCluesTEMP=[]; var cprev=-1;
+		//while (contentClues.length) {
+			for (c in contentClues) {
+				if (~contentClues[c].indexOf("FTP")) {
+					console.log('hue ftp');
+					contentCluesTEMP.push(contentClues[cprev+1]);
+					contentClues.splice(cprev+1,1);
+					cprev=c-1;
+				}
+			}
+		//}
+		contentClues=contentCluesTEMP;
+	}
 	var Source   = $("#cluesTemplate").html();
 	var Template = Handlebars.compile(Source);
 	$("#mainDiv").removeClass("questions").html(Template(contentClues));
