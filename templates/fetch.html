@@ -37,6 +37,9 @@ TODO: auto-detect category (category of questions is in the ajax response)
 	<script src="http://code.jquery.com/ui/1.10.3/jquery-ui.js"></script>
 </head>
 <body>
+	{% block body %}
+	NOT WORKING HEUHEUHE
+	{% endblock %}
 	<div id="header" style="display:none;">
 		<div class="tab" data-url="/"><p>Fetch</p></div>
 		<div class="tab" data-url="/quiz"><p>Quiz</p></div>
@@ -109,6 +112,7 @@ TODO: auto-detect category (category of questions is in the ajax response)
 			</select>
 		</div>
 	</div>
+	{% raw %}
 	<script id="questionsTemplate" type="text/x-handlebars-template">
 		<table id="mainTbl">
 		{{#each this}}
@@ -142,6 +146,7 @@ TODO: auto-detect category (category of questions is in the ajax response)
 			</tr>
 		</table>
 	</script>
+	{% endraw %}
 	<div id="mainDiv" class="questions">
 	</div>
 	<script src="resources/mainScript.js"></script>

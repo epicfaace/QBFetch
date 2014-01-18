@@ -160,10 +160,10 @@ function delimitQ(order) {
 		var filtered=$(this).html().replace(/(\r\n|\n|\r)/gm,"").replace(/(\!|\?)\"(\s*[A-Z])/g,"$1\"\.$2")//the !" and ?" is only when a space+capital letter is after it
 			.replace(/(F|f)or (1|2)(0|5) points/g,"FTP").replace(/\.\"/g,"\"\.")
 			.replace(/\((\*|\+)\)/g,"").replace(/\[\*\]/g,"").replace(/  /g," ")
-			.replace(/((M|D)(r|s)(s)*?)\./g,"$1|,|").split(/([^A-Z])\.\s*/g); //replaces ." with ". ;adds periods after !" and ?"; and removes (*) and [*] and (+) and "  "; and removes \n stuff (not working, fixed in next line); and also removes 'For 10/15/20/25 points,'
+			.replace(/((M|D)*?(r|s|v)(s)*?)\./g,"$1|,|").split(/([^A-Z])\.\s*/g); //replaces ." with ". ;adds periods after !" and ?"; and removes (*) and [*] and (+) and "  "; and removes \n stuff (not working, fixed in next line); and also removes 'For 10/15/20/25 points,'
 		for (var c=0;c<filtered.length-1;c++) {//weird fix; TODO: fix later with capturing groups: replace(/(grp)/g,"$1")
 			filtered[c]+=filtered[c+1];
-			filtered[c]=filtered[c].replace(/((M|D)(r|s)(s)*?)\|\,\|/g,"$1.");//for Mr. Ms. Dr. Drs. Mrs. etc; before, they are turned into Mr|,| and now changing them back
+			filtered[c]=filtered[c].replace(/((M|D)*?(r|s|v)(s)*?)\|\,\|/g,"$1.");//for Mr. Ms. Dr. Drs. Mrs. etc; before, they are turned into Mr|,| and now changing them back
 			filtered.splice(c+1,1);
 		}
 		contentClues=contentClues.concat(filtered);
