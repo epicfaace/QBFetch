@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+{% extends "base.html" %}
 <!--
 TODO::::
 
@@ -26,57 +26,9 @@ TODO: make a separate place where the category, labels, etc. txtboxes are shown,
 
 TODO: auto-detect category (category of questions is in the ajax response)
 	-->
-<html>
-<head>
-	<title>QB Fetch</title>
-	<link rel="stylesheet" href="http://code.jquery.com/ui/1.10.3/themes/smoothness/jquery-ui.css">
-	<link rel="stylesheet" type="text/css" href="resources/fetchCss.css" />
-	<link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700&lang=en" />
-	<script src="resources/jquery.min.js"></script>
-	<script src="resources/handlebars-v1.2.0.js"></script>
-	<script src="http://code.jquery.com/ui/1.10.3/jquery-ui.js"></script>
-</head>
-<body>
+{%block title%}Fetch{%endblock%}
 	{% block body %}
-	NOT WORKING HEUHEUHE
-	{% endblock %}
-	<div id="header" style="display:none;">
-		<div class="tab" data-url="/"><p>Fetch</p></div>
-		<div class="tab" data-url="/quiz"><p>Quiz</p></div>
-	</div>
-	<div class="horizontal" style="display:none;">
-		<ul>
-			<li><a href="#">Home</a></li>
-			<li><a href="#">News</a></li>
-			<li><a href="#">Articles</a></li>
-			<li><a href="#">Forum</a></li>
-			<li><a href="#">Contact</a></li>
-			<li><a href="#">About</a></li>
-		</ul>
-	</div>
-	<div class="maia-header" id="maia-header" role="banner">
-      <div class="maia-aux">
-        <h1>
-          <a href="/"><img alt="Google" src="//www.google.com/images/logos/google_logo_41.png"></a>
-        </h1>
-        <h2>
-          <a href="./">QBFetch</a>
-        </h2>
-      </div>
-    </div>
-	<div class="maia-nav" id="maia-nav-x">
-		<div class="maia-aux">
-	        <ul>
-				<li class="active">Home</li>
-				<li>
-				<a href="../howsearchworks/thestory/">How Search Works</a>
-				<li>
-				<a href="../howsearchworks/thestory/index.html">The Story</a>
-				</li>
-				</li>
-	        </ul>
-		</div>
-	</div>
+
 	<div id="topDiv">
 		<form id="reqForm">
 			<input type="text" name="info" id="clueInput" value="" />
@@ -150,8 +102,4 @@ TODO: auto-detect category (category of questions is in the ajax response)
 	<div id="mainDiv" class="questions">
 	</div>
 	<script src="resources/mainScript.js"></script>
-</body>
-</html>
-<!--
-"huyen".match(/y/g).length //# of occurrences in a string
--->
+	{% endblock %}

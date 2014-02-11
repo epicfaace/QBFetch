@@ -1,10 +1,6 @@
-<!DOCTYPE html>
-<html>
-<head>
-	<meta charset="utf-8">
-	<title>Quiz</title>
-	<script src="resources/jquery.min.js"></script>
-	<!--script src="resources/qset.js"></script-->
+{% extends "base.html" %}
+{%block title%}Quiz{%endblock%}
+	{%block head%}
 	<link href='http://fonts.googleapis.com/css?family=Droid+Sans:400,700' rel='stylesheet' type='text/css'>
 	<style>
 	html,body {height:100%;}
@@ -52,8 +48,8 @@
 		overflow-x:hidden;
 	}
 	</style>
-</head>
-<body>
+	{%endblock head%}
+{%block body%}
 	<div id="left">
 		<div id="question"></div>
 		<form id="ansForm">
@@ -158,4 +154,4 @@
 			}
 		}
 	</script>
-</body>
+{%endblock body%}

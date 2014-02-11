@@ -1,6 +1,46 @@
-{% extends "fetch.html" %}
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>QBFetch - {%block title%}{%endblock%}</title>
+	<link rel="stylesheet" href="http://code.jquery.com/ui/1.10.3/themes/smoothness/jquery-ui.css">
+	<link rel="stylesheet" type="text/css" href="resources/fetchCss.css" />
+	<link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700&lang=en" />
+	<script src="resources/jquery.min.js"></script>
+	<script src="resources/handlebars-v1.2.0.js"></script>
+	<script src="http://code.jquery.com/ui/1.10.3/jquery-ui.js"></script>
+	{% block head %}
+	{% endblock %}
+</head>
 
+<body>
+{%block header %}
+	<!--<div class="maia-header" id="maia-header" role="banner" style="min-height:0px;">
+      <div class="maia-aux">
+        <h1>
+          <a href="/"><img alt="Google" src="//www.google.com/images/logos/google_logo_41.png"></a>
+        </h1>
+        <h2 style="font-size:1.5em;">
+          <a href="./">QBFetch</a>
+        </h2>
+      </div>
+    </div>-->
+	<div class="maia-nav" id="maia-nav-x">
+		<div class="maia-aux">
+	        <ul>
+				<li id="liFetch"><a href="/">Fetch</a></li>
+				<li id="liQuiz">
+				<a href="/quiz">Quiz</a>
+				</li>
+				<script>
+				var i = $("li#li{{curPage}}");
+				i.addClass("active").html(i.text());
+				</script>
+	        </ul>
+		</div>
+	</div>
+{%endblock%}
 {% block body %}
-Yes, it's working!
-<h1>YAY!</h1>
+Sorry, there was an error loading this page.
 {% endblock %}
+</html>

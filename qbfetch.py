@@ -14,13 +14,13 @@ jinja_environment = jinja2.Environment(autoescape=True,
     loader=jinja2.FileSystemLoader(os.path.join(os.path.dirname(__file__), 'templates')));
 class fetchUI(webapp2.RequestHandler):
 	def get(self):
-		template = jinja_environment.get_template('base.html');
-		self.response.out.write(template.render({'name':'Ashwin'}));
+		template = jinja_environment.get_template('fetch.html');
+		self.response.out.write(template.render({'curPage':'Fetch'}));
 		#self.response.out.write(template.render({'name':jinja_environment.get_template('quiz.html')}));
 class quizPage(webapp2.RequestHandler):
 	def get(self):
 		template = jinja_environment.get_template('quiz.html');
-		self.response.out.write(template.render({'name':'Ashwin'}));
+		self.response.out.write(template.render({'curPage':'Quiz'}));
 		
 
 
