@@ -21,6 +21,10 @@ class quizPage(webapp2.RequestHandler):
 	def get(self):
 		template = jinja_environment.get_template('quiz.html');
 		self.response.out.write(template.render({'curPage':'Quiz'}));
+class mugPage(webapp2.RequestHandler):
+	def get(self):
+		template = jinja_environment.get_template('mug.html');
+		self.response.out.write(template.render({'curPage':'Mug'}));
 		
 
 

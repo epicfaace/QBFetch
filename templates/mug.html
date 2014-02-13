@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+{%block title%}Mug{%endblock%}
+{%block head%}
+<style>
+#left {
+	height:100%;
+	margin:10px;
+}
+#question {
+	height:20%;
+	border:1px solid black;
+	width:50%;
+	max-width: 300px;
+}
+</style>
+{%endblock%}
+{%block body%}
+<div id="left">
+	<div id="question"></div>
+	<form id="ansForm">
+		<input type="text" id="answer">
+		<input type="submit" id="submitBtn">
+		<span id="wrong"></span>
+	</form>
+</div>
+<script>
+$(function() {
+	window.termListOrig = {
+	"Haydn":["London Symphonies","The Creation","The Seasons","Sun Quartets","Erdody","Farwell","Surprise","Hen","Military","Clock","Drum Roll","Quinten (Fifths)","Sunrise","Rider quartet","Gypsy Rondo","Gott erhalte Franz den Kaiser","Emperor quartet","Mass in Time of War","Morning, Noon, Evening symphonies","The Palindrome","Philosopher","Drumroll","The World in the Moon","The Paladin Orlando","Hoboken catalogue","Esterhazy family"],
+	"Mozart":["Paris sym.","Prague sym.","Jupiter sym.", "Abduction from the Seraglio", "Don Giovanni","The Magic Flute"],
+	"Schubert":["lieder","Die schoene Muellerin","Winterreise (Winter Journey)","Grand Duo","Little C major","Great C major","Piano Quintet in A Major","Trout Quintet","Die Forelle","Wanderer Fantasy","Unfinished sym.","Swansong collection","Six moments musicaux","Fantasia in F minor"," incidental music for Rosamunde","The Hurdy Gurdy Man","Winter Journey","Death and the Maiden","Hark! Hark! the Lark","Die Erlkonig (Elfking)","Gretchen at the Spinning Wheel","Alfonso und Estrella","Impromptus"],
+	"(Johann) Strauss (II)":["The Blue Danube","Kaiser-Walzer (Emperor Waltz, orig. Hand in Hand)","Tales from the Vienna Woods","Tritsch-Tratsch-Polka (Chit Chat)","Die Fledermaus (Bat)","Der Ziguernerbaron (Gypsy Baron)","Be Embraced, You Millions","Wiener Bonbons (Vienna Sweets)","Wine, Women, and Song","Fruhlingsstimmen (Voices of Spring)",],
+	"Mahler":["The Song of the Earth","Reserruction sym.","Tragic sym.","Symphony of a Thousand","Curse of the Ninth"],
+	"Schoenberg":["twelve tone system","Transfigured Night","moses and Aaron","A Survivor from Warsaw","Gurre-Lieder"],
+	}
+	window.termList=[];
+	for (t in termListOrig) {
+	for (tt in termListOrig[t]) {
+		termList.push({"q":termListOrig[t][tt],"a":t})
+	}
+	}
+	shuffle(termList);
+	window.curSlice = 10;
+	window.curTerms = termList.slice(0,10);
+	window.mastered = [];
+	window.wrongTerms = [];
+	startQ();
+});
+function startQ() {
+	$("#ansForm").submit(function(e) {
+		e.preventDefault();
+		//console.log(curTerms[curQ]["a"].replace(/ *\([^)]*\) */g,""));
+		if (curTerms[curQ]["a"].replace(/ *\([^)]*\) */g,"").toLowerCase() == $("#answer").val().toLowerCase()) {
+			$("#wrong").css("color","#009900");
+			mastered.push(curTerms[curQ]);
+		}
+		else {
+			$("#wrong").css("color","#990000");
+			wrongTerms.push(curTerms[curQ]);
+		}
+		$("#wrong").text(curTerms[curQ]["a"]);
+		curTerms.shift();
+		nextQ();
+	});
+	window.curQ = 0;
+	nextQ();
+}
+function nextQ() {
+	//curQ++;
+	if (!curTerms[curQ]) {
+		loopQ(); return;
+	}
+	$("#question").text(curTerms[curQ]["q"]);
+	$("#answer").val("");
+}
+
+function loopQ() {
+	console.log("LOOP");
+	curTerms=curTerms.concat(wrongTerms);
+	//curSlice += 5;
+	shuffle(curTerms);
+	wrongTerms=[];
+}
+function shuffle(o){for(var j, x, i = o.length; i; j = Math.floor(Math.random() * i), x = o[--i], o[i] = o[j], o[j] = x);return o};
+</script>
+{%endblock%}
+remove parenth: .replace( /(\(|\))/g, "")
+remove b/w parenth: .replace(/ *\([^)]*\) */g, "")

@@ -1,11 +1,4 @@
 html,body {height:99%;}
-#header {
-	width:100%;
-	height:4%;
-	min-height:15px;
-	max-height:50px;
-	padding:.3%;
-}
 div.horizontal {
 	width: 100%;
 	height: 63px;

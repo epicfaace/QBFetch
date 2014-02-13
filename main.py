@@ -20,7 +20,8 @@ app = webapp2.WSGIApplication([('/', fetchUI),
 								('/fetchEngine',fetchProxy),
 								('/saveQ',saveQ),
 								('/getQ',getQ),
-								('/quiz',quizPage)
+								('/quiz',quizPage),
+								('/mug',mugPage)
 							  ],
                               debug=True);
 

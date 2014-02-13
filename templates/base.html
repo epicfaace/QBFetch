@@ -29,9 +29,8 @@
 		<div class="maia-aux">
 	        <ul>
 				<li id="liFetch"><a href="/">Fetch</a></li>
-				<li id="liQuiz">
-				<a href="/quiz">Quiz</a>
-				</li>
+				<li id="liQuiz"><a href="/quiz">Quiz</a></li>
+				<li id="liMug"><a href="/mug">Mug</a></li>
 				<script>
 				var i = $("li#li{{curPage}}");
 				i.addClass("active").html(i.text());
@@ -40,7 +39,9 @@
 		</div>
 	</div>
 {%endblock%}
+<div id="full" style="height:95%;">
 {% block body %}
 Sorry, there was an error loading this page.
 {% endblock %}
+</div>
 </html>
