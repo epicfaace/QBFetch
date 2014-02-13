@@ -24,7 +24,7 @@ class saveQ(webapp2.RequestHandler):
 		#employee.hire_date = datetime.datetime.now().date()
 		employee.put()
 
-		self.response.out.write("yay finished");
+		self.response.out.write("Save successful");
 
 		#self.request.get("q")
 		#template = jinja_environment.get_template('fetch.html');
@@ -43,9 +43,5 @@ class getQ(webapp2.RequestHandler):
 		#q.order("-height")
 
 		#result = q.get()
-		ls=[]
-		for p in q.run(limit=10):
-			ls.append(p._entity)
-			#self.response.out.write("term: "+p.term+"|clues:"+','.join(p.clues)+"|category:"+p.category+"\n");
-		self.response.out.write(json.dumps(ls,default=lambda o: o.__dict__));
-		#self.response.out.write(result)
+		#q.run() gets an object with all the results
+		self.response.out.write(json.dumps(map(lambda x:x._entity,q.run()),default=lambda o: o.__dict__))

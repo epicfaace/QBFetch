@@ -52,7 +52,7 @@ function processData(data) {
 	var Source   = $("#questionsTemplate").html();
 	var Template = Handlebars.compile(Source);
 	$("#mainDiv").html(Template(questions));
-	$("#controls").show();
+	//$("#controls").show();
 	editBinder();
 	$("#resultsInfo").html("<font color='"+((questions.length)?"green":"red")+"'>"+questions.length+" results</font>");
 	//TODO: if error, #resultsInfo should say error, too.
@@ -275,6 +275,7 @@ function smartOrder() {
 	}
 }
 function saveClues() {
+	$("#resultsInfo").text("Saving...");
 	//TODO: use fallback for JSON.stringify(), from: https://github.com/douglascrockford/JSON-js/blob/master/json2.js
 	finClues=[];
 	$("#finTbl td.question:not(:first)").each(function() {//excludes the sample question
@@ -285,7 +286,7 @@ function saveClues() {
 		'category':$("#optionCategory").val(),
 		'clues':JSON.stringify(finClues)
 		}).done(function(data) {
-			console.log(data);
+			$("#resultsInfo").text(data);
 	});
 }
 function updateArrayClues() {

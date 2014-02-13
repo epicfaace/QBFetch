@@ -36,14 +36,13 @@
 	}
 	div#left {
 		height:100%;
-		width:80%;
+		width:70%;
 		float:left;
 	}
 	div#right {
 		float:right;
 		height:100%;
-		width:20%;
-		max-width:200px;
+		width:30%;
 		overflow-y:auto;
 		overflow-x:hidden;
 	}
@@ -64,24 +63,35 @@
 			<input type="text" name="term" value="mitochondria" />
 			<label><input type="checkbox" name="gql" />GQL</label>
 			<label><input type="checkbox" name="all" />All</label>
-			<input type="submit">
+			<input type="submit" />
+			<input type="button" value="Start" id="startBtn" />
+			<span id="loadStatus"></span>
 		</form>
+		<table id="clueTbl">
+		</table>
 	</div>
 	<script>
 	window.allsets=[];
 		$(function() {
 			eventBinder();
-			for (i in allsets) {
-				$("<a class='button' href='javascript:void(0)' data-i='"+i+"'>"+allsets[i].setName+"</a><br>").appendTo("div#right");
-			}
 			$("#searchForm").submit(function(e) {
 				e.preventDefault();
+				$("#loadStatus").text("Loading...");
 				$.get("/getQ?"+$(this).serialize(),function(data) {
 					data=JSON.parse(data);
-					window.allsets=window.allsets.concat(data);
-					for (i in data) {
-						$("<a class='button' href='javascript:void(0)' data-i='"+String(i-data.length+allsets.length)+"'>"+data[i].term+"</a><br>").appendTo("div#right");
+					for (d in data) { //removes duplicates
+						if (indexOf2(allsets,(data[d]))==-1) allsets.push(data[d]);
 					}
+					window.data=data;
+					//window.allsets=window.allsets.concat(data);
+					/*for (i in data) {
+						$("<a class='button' href='javascript:void(0)' data-i='"+String(i-data.length+allsets.length)+"'>"+data[i].term+"</a><br>").appendTo("div#right");
+					}*/
+					//templating:
+					var Source   = $("#clueListTemplate").html();
+					var Template = Handlebars.compile(Source);
+					$("table#clueTbl").html(Template(allsets));
+					$("#loadStatus").text("Done!");
 					eventBinder();
 				})
 			});
@@ -96,15 +106,36 @@
 			});
 		});
 		function eventBinder() {
-			$("a.button").click(function(e) { //TODO: glitch spawns multiple of these events when more than one of the same term is on the list
+			/*$("a.button").click(function(e) { //TODO: glitch spawns multiple of these events when more than one of the same term is on the list
 				//e.preventDefault();
 				$(this).css("font-weight","bold");
 				init(allsets[$(this).attr("data-i")]);
+			});*/
+			$("#allCheck").change(function() {
+				$("#clueTbl input[type='checkbox']").prop("checked",$(this).prop("checked"));
+			});
+			$("#startBtn").unbind("click").click(function() {
+				console.log("HUYEN");
+				var ch = $("#clueTbl input[type='checkbox']:checked").not("#allCheck");
+				if (!ch.length) {$("#loadStatus").text("Select");return;}
+				$("#startBtn").click(null);
+				$("#loadStatus").text("Started");
+				window.qsetorig = [];
+				$(ch).each(function() {
+					qsetorig.push(allsets[$(this).attr("data-i")])
+				});
+				hideRight();
+				init();
 			});
 		}
-		function init(s) {
-			console.log(s);
-			window.qsetorig=[s];//TODO: add more terms to list later, so you can practice with multiple terms w/
+		function hideRight() {
+			$("div#right").hide().after("<div id='showRight' style='height:100%;float:right;width:20px;border:1px solid black;cursor:pointer;'>&lt;&lt;</div>");
+			$("div#showRight").click(function() {
+				$(this).remove(); $("div#right").show();
+			});
+
+		};
+		function init() {
 			q=0;
 			wrongElem=null; //if waiting to proceed to next question (if true, reading all the answers)
 			//parse();
@@ -153,5 +184,19 @@
 				curset[q].clues.push(wrongElem);
 			}
 		}
+	window.indexOf2=function(a,e){for(var t=0;t<a.length;t++){if(JSON.stringify(a[t])== JSON.stringify(e)){return t}}return -1} //similar to indexOf, but checks with == instead of === and uses JSON.stringify in order to compare two objects: indexOf2(arr,elem) ; adding it to Array.prototype causes problems with the for...in loop
 	</script>
+	{% raw %}
+	<script id="clueListTemplate" type="text/x-handlebars-template">
+		<tr><th><input type="checkbox" id="allCheck"></input></th>
+		<th>Category</th><th>Term</th></tr>
+		{{#each this}}
+			<tr>
+				<td><input type="checkbox" class="termCheck" data-i="{{@index}}"></input></td>
+				<td>{{category}}</td>
+				<td>{{term}}</td>
+			</tr>
+		{{/each}}
+	</script>
+	{% endraw %}
 {%endblock body%}
